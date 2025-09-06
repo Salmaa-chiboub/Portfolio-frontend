@@ -479,6 +479,11 @@ export default function Index() {
   const aboutDescOnly = !aboutLoading && aboutHasDesc && !aboutHasCv && !aboutHasEmail;
   const aboutCtaOnly = !aboutLoading && !aboutHasDesc && aboutHasCv && aboutHasEmail;
 
+  // Ensure About content becomes visible once data loads, even if the observer didn't attach on first render
+  useEffect(() => {
+    if (!aboutCollapsed) setAboutInView(true);
+  }, [aboutCollapsed]);
+
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setContactError(null);
