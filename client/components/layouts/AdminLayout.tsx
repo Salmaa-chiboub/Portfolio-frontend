@@ -89,6 +89,15 @@ export default function AdminLayout() {
                               </li>
                             );
                           })}
+                          <li>
+                            <button
+                              onClick={() => { clearTokens(); setMobileMenuOpen(false); navigate("/admin", { replace: true }); }}
+                              className="w-full flex items-center gap-3 px-4 py-3 text-left bg-orange/10 hover:bg-orange/20"
+                            >
+                              <LogOut className="w-5 h-5 text-orange" />
+                              <span className="font-lufga text-sm text-orange">Logout</span>
+                            </button>
+                          </li>
                         </ul>
                       </nav>
                     </div>
