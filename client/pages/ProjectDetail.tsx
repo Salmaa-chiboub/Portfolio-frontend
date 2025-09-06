@@ -211,15 +211,6 @@ export default function ProjectDetail() {
           </div>
         </div>
 
-        {loading && (
-          <div className="space-y-8">
-            <div className="h-[20rem] lg:h-[30rem] bg-gray-bg border border-gray-border rounded-3xl animate-pulse mx-auto" style={{ width: "70%" }} />
-            <div className="space-y-4">
-              <div className="h-10 bg-gray-bg rounded-xl w-2/3" />
-              <div className="h-24 bg-gray-bg rounded-xl" />
-            </div>
-          </div>
-        )}
 
         {!loading && error && (
           <p className="text-center text-gray-light font-lufga">{error}</p>

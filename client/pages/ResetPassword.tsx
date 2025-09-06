@@ -28,7 +28,7 @@ export default function ResetPassword() {
     const controller = new AbortController();
     controllerRef.current = controller;
     try {
-      const url = getApiUrl("/api/users/password-reset/");
+      const url = getApiUrl("/api/users/password-reset-confirm/");
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

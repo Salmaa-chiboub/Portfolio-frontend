@@ -349,24 +349,22 @@ export default function Index() {
     };
   }, [expNext, expLoadingMore]);
 
-  // Timeline fill progress on scroll
+  // Timeline fill progress using IntersectionObserver (less work per scroll)
   useEffect(() => {
-    const update = () => {
-      const el = timelineRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const visible = Math.min(rect.height, Math.max(0, window.innerHeight - rect.top));
-      const p = Math.max(0, Math.min(1, visible / (rect.height || 1)));
-      setTimelineProgress(Math.round(p * 100));
-    };
-    update();
-    const onScroll = () => requestAnimationFrame(update);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    const el = timelineRef.current;
+    if (!el) return;
+    let last = -1;
+    const thresholds = Array.from({ length: 9 }, (_, i) => i / 8);
+    const io = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      const p = Math.round((entry.intersectionRatio || 0) * 100);
+      if (p !== last) {
+        last = p;
+        setTimelineProgress(p);
+      }
+    }, { threshold: thresholds });
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   useEffect(() => {
@@ -613,9 +611,8 @@ export default function Index() {
       if (wheelCooldownRef.current) return;
 
       wheelAccumX.current += dx;
-      const threshold = 60;
+      const threshold = 80;
       if (Math.abs(wheelAccumX.current) > threshold) {
-        e.preventDefault();
         if (wheelAccumX.current < 0) {
           pageDirRef.current = -1;
           goPrevSkillsPage();
@@ -631,7 +628,7 @@ export default function Index() {
         }, 500);
       }
     };
-    el.addEventListener("wheel", handler, { passive: false });
+    el.addEventListener("wheel", handler, { passive: true });
     return () => {
       el.removeEventListener("wheel", handler);
       if (wheelTimeoutRef.current) window.clearTimeout(wheelTimeoutRef.current);
@@ -1252,14 +1249,6 @@ export default function Index() {
                         onTouchMove={handleSkillsTouchMove}
                         onTouchEnd={handleSkillsTouchEnd}
                       >
-                        {skillsLoading &&
-                          Array.from({ length: 6 }).map((_, i) => (
-                            <div
-                              key={`skeleton-${i}`}
-                              className="animate-pulse bg-white/10 rounded-3xl h-40 border border-white/10"
-                            ></div>
-                          ))}
-
                         {!skillsLoading &&
                           paginatedSkills.map((item) => (
                             <div key={item.id} className="relative group">

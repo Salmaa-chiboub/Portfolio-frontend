@@ -41,6 +41,8 @@ const App = () => (
         <Route path="/blog/:slug" element={<BlogDetail />} />
         <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
         <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/login" element={<AdminLogin />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* Admin area uses a persistent layout so sidebar remains fixed */}
         <Route path="/admin/*" element={<AdminGuard><AdminLayout /></AdminGuard>}>

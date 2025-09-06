@@ -165,22 +165,27 @@ export default function ProjectsCarousel() {
     setTimeout(() => setIsDragging(false), 0);
   };
 
-  // Trackpad horizontal scroll (carousel)
+  // Trackpad horizontal scroll (carousel) via passive native listener
   const wheelAccum = useRef(0);
-  const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    if (!n || isListMode) return;
-    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
-    if (!isHorizontal) return; // only respond to horizontal two-finger scroll
-    wheelAccum.current += e.deltaX;
-    const threshold = 100;
-    if (wheelAccum.current <= -threshold) {
-      next();
-      wheelAccum.current = 0;
-    } else if (wheelAccum.current >= threshold) {
-      prev();
-      wheelAccum.current = 0;
-    }
-  };
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el || isListMode || !n) return;
+    const handler = (e: WheelEvent) => {
+      const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+      if (!isHorizontal) return;
+      wheelAccum.current += e.deltaX;
+      const threshold = 120;
+      if (wheelAccum.current <= -threshold) {
+        next();
+        wheelAccum.current = 0;
+      } else if (wheelAccum.current >= threshold) {
+        prev();
+        wheelAccum.current = 0;
+      }
+    };
+    el.addEventListener('wheel', handler, { passive: true });
+    return () => el.removeEventListener('wheel', handler);
+  }, [isListMode, n, currentIndex]);
 
   if (!loading && (error || n === 0)) return null;
 
@@ -214,17 +219,10 @@ export default function ProjectsCarousel() {
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          onWheel={onWheel}
         >
           {isListMode ? (
             <div className="w-full max-w-3xl mx-auto">
-              {loading ? (
-                <div className="space-y-6">
-                  {[0, 1, 2].map((i) => (
-                    <div key={i} className="w-full h-72 bg-gray-bg border border-gray-border rounded-[40px] animate-pulse" />
-                  ))}
-                </div>
-              ) : (
+              {loading ? null : (
                 <div className="w-full space-y-6">
                   {ordered.slice(0, visibleCount).map((project) => {
                     const primaryImage = project?.media?.[0]?.image || "/project-placeholder.svg";
@@ -315,14 +313,7 @@ export default function ProjectsCarousel() {
           ) : (
             <>
               <div className="relative w-full max-w-6xl" style={{ height: containerH }}>
-                {loading ? (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div
-                      className="bg-gray-bg border border-gray-border rounded-[40px] animate-pulse"
-                      style={{ width: Math.round(900 * scale), height: Math.round(460 * scale) }}
-                    />
-                  </div>
-                ) : (
+                {loading ? null : (
                   offsets.map((off) => {
                     const idx = (currentIndex + off + n) % n;
                     const project = ordered[idx];

@@ -3,12 +3,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap");
 
 /* Import Lufga font */
-@font-face {
-  font-family: "Lufga";
-  src: url("https://fonts.cdnfonts.com/css/lufga") format("woff2");
-  font-weight: 300 800;
-  font-display: swap;
-}
+@import url("https://fonts.cdnfonts.com/css/lufga");
 
 @tailwind base;
 @tailwind components;
@@ -205,10 +200,14 @@ html {
 
   .hero-blob {
     position: absolute;
-    filter: blur(40px) saturate(120%);
+    filter: blur(20px) saturate(120%);
     opacity: 0.9;
     transform-origin: center;
     mix-blend-mode: normal;
+    will-change: transform, opacity, border-radius;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    contain: layout paint style size;
   }
 
   .hero-blob-1 {

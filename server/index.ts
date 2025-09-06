@@ -118,7 +118,15 @@ export function createServer() {
   });
 
   // Proxy projects endpoints to external backend if VITE_API_BASE_URL is set
-  const apiBase = (process.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+  const apiBase = (() => {
+    const raw = String(process.env.VITE_API_BASE_URL || "").trim();
+    if (!raw) return "";
+    let base = raw.replace(/\/$/, "");
+    if (!/^https?:\/\//i.test(base)) {
+      base = base.startsWith("//") ? `https:${base}` : `https://${base}`;
+    }
+    return base;
+  })();
 
   // Contact endpoint: mock in dev or proxy to backend when configured
   app.post("/api/core/contact/", async (req, res) => {

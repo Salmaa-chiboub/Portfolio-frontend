@@ -87,27 +87,25 @@ export default function ExperiencesSection() {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const [timelineProgress, setTimelineProgress] = useState(0);
   useEffect(() => {
-    const update = () => {
-      const el = timelineRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const visible = Math.min(rect.height, Math.max(0, window.innerHeight - rect.top));
-      const p = Math.max(0, Math.min(1, visible / (rect.height || 1)));
-      setTimelineProgress(Math.round(p * 100));
-    };
-    update();
-    const onScroll = () => requestAnimationFrame(update);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    const el = timelineRef.current;
+    if (!el) return;
+    let last = -1;
+    const thresholds = Array.from({ length: 9 }, (_, i) => i / 8);
+    const io = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      const p = Math.round((entry.intersectionRatio || 0) * 100);
+      if (p !== last) {
+        last = p;
+        setTimelineProgress(p);
+      }
+    }, { threshold: thresholds });
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   // Initial fetch with AbortController
   useEffect(() => {
-    const url = "/api/experiences/";
+    const url = getApiUrl("/api/experiences/");
     if (!url) return;
     const controller = new AbortController();
     setExpLoading(true);
@@ -151,8 +149,7 @@ export default function ExperiencesSection() {
       (entries) => {
         const [entry] = entries;
         if (entry.isIntersecting && expNext && !expLoadingMore) {
-          const toSameOrigin = (p: string) => `/${String(p || "").replace(/^\//, "")}`;
-          const nextUrl = buildNextUrl(toSameOrigin, expNext);
+          const nextUrl = buildNextUrl(getApiUrl, expNext);
           if (!nextUrl) return;
           setExpLoadingMore(true);
           fetch(nextUrl, { cache: "no-store" })
@@ -234,19 +231,6 @@ export default function ExperiencesSection() {
               <div className="hidden lg:block absolute left-1/2 top-0 w-1 bg-orange -translate-x-1/2 transition-[height] duration-500" style={{ height: `${timelineProgress}%` }} />
 
               <div className="space-y-10">
-                {expLoading && (
-                  <div className="grid gap-10">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="relative">
-                        <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 top-2 w-6 h-6 bg-white border-2 border-orange rounded-full" />
-                        <div className="grid lg:grid-cols-2 gap-6 lg:gap-10">
-                          <div className="h-28 bg-gray-bg border border-gray-border rounded-2xl animate-pulse" />
-                          <div className="h-28 bg-gray-bg border border-gray-border rounded-2xl animate-pulse" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
 
                 {!expLoading && expError && (
                   <p className="text-center text-gray-light font-lufga">{expError}</p>

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Github, ExternalLink } from "lucide-react";
 import { getApiUrl } from "@/lib/config";
 import { stripHtml, cn } from "@/lib/utils";
+import { useBlogs } from "@/hooks/use-api";
 
 type BlogImage = { id: number; image: string; caption?: string | null };
 export type BlogPost = {
