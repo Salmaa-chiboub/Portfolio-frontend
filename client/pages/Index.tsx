@@ -462,7 +462,8 @@ export default function Index() {
   const aboutHasDesc = !!(about?.description && String(about.description).trim());
   const aboutHasCv = !!(about?.cv && String(about.cv).trim());
   const aboutHasEmail = !!(about?.hiring_email && String(about.hiring_email).trim());
-  const aboutShouldHide = (aboutError === true) || (!aboutLoading && !aboutHasDesc && !aboutHasCv && !aboutHasEmail);
+  const aboutIsEmpty = !aboutHasDesc && !aboutHasCv && !aboutHasEmail;
+  const aboutCollapsed = (aboutError === true) || aboutIsEmpty || aboutLoading;
   const aboutDescOnly = !aboutLoading && aboutHasDesc && !aboutHasCv && !aboutHasEmail;
   const aboutCtaOnly = !aboutLoading && !aboutHasDesc && aboutHasCv && aboutHasEmail;
 
@@ -1051,20 +1052,22 @@ export default function Index() {
       </section>
 
       {/* Animated divider between Hero and About */}
-      <div className="py-4 bg-background">
-        <motion.div
-          initial={{ scaleX: 0, opacity: 0 }}
-          whileInView={{ scaleX: 1, opacity: 1 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="h-1 bg-orange rounded-full mx-auto"
-          style={{ width: 96, transformOrigin: "center" }}
-        />
-      </div>
+      {!aboutCollapsed && (
+        <div className="py-4 bg-background">
+          <motion.div
+            initial={{ scaleX: 0, opacity: 0 }}
+            whileInView={{ scaleX: 1, opacity: 1 }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="h-1 bg-orange rounded-full mx-auto"
+            style={{ width: 96, transformOrigin: "center" }}
+          />
+        </div>
+      )}
 
       {/* About Section */}
-      {aboutShouldHide ? (
-        <div style={{ height: 5 }} />
+      {aboutCollapsed ? (
+        <div style={{ height: 0 }} />
       ) : (
         <section id="about" className="pt-2.5 pb-16 lg:pt-2.5 lg:pb-24 bg-background" ref={aboutRef}>
           <div className="container mx-auto max-w-7xl px-4">
@@ -1111,12 +1114,6 @@ export default function Index() {
                 </div>
                 {apiReady === true && about?.description ? (
                   <div className="text-muted-foreground font-lufga text-lg lg:text-xl leading-relaxed" dangerouslySetInnerHTML={{ __html: about.description }} />
-                ) : apiReady === null ? (
-                  <div className="space-y-3">
-                    <div className="h-4 bg-white/10 animate-pulse rounded-md max-w-2xl mx-auto" />
-                    <div className="h-4 bg-white/10 animate-pulse rounded-md max-w-2xl mx-auto" />
-                    <div className="h-4 bg-white/10 animate-pulse rounded-md max-w-2xl mx-auto" />
-                  </div>
                 ) : null}
               </div>
             ) : (
@@ -1175,12 +1172,6 @@ export default function Index() {
                       <div className="space-y-6">
                         {apiReady === true && about?.description ? (
                           <div className="text-muted-foreground font-lufga text-lg lg:text-xl leading-relaxed" dangerouslySetInnerHTML={{ __html: about.description }} />
-                        ) : apiReady === null ? (
-                          <div className="space-y-3">
-                            <div className="h-4 bg-white/10 animate-pulse rounded-md max-w-2xl mx-auto lg:mx-0" />
-                            <div className="h-4 bg-white/10 animate-pulse rounded-md max-w-2xl mx-auto lg:mx-0" />
-                            <div className="h-4 bg-white/10 animate-pulse rounded-md max-w-2xl mx-auto lg:mx-0" />
-                          </div>
                         ) : null}
                       </div>
                     </div>
@@ -1301,7 +1292,7 @@ export default function Index() {
               )}
             </div>
           </section>
-        ) : <div style={{ height: 80 }} />}
+        ) : <div style={{ height: isMobile ? 0 : 80 }} />}
       </div>
 
       {/* Experiences Section */}
@@ -1310,7 +1301,7 @@ export default function Index() {
       <Suspense fallback={null}>
         <ExperiencesSectionLazy />
       </Suspense>
-    ) : <div style={{ height: 80 }} />}
+    ) : <div style={{ height: isMobile ? 0 : 80 }} />}
   </div>
 
 
@@ -1323,7 +1314,7 @@ export default function Index() {
         </Suspense>
       </motion.div>
     ) : (
-      <div style={{ minHeight: 80 }} />
+      <div style={{ minHeight: isMobile ? 0 : 80 }} />
     )}
   </div>
 
@@ -1539,7 +1530,7 @@ export default function Index() {
             ) : null
           )
         ) : (
-          <div style={{ minHeight: 80 }} />
+          <div style={{ minHeight: isMobile ? 0 : 80 }} />
         )}
       </div>
 

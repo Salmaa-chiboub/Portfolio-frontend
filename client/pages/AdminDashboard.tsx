@@ -78,19 +78,56 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
 
   const valid = title.trim().length >= 3 && description.trim().length >= 10 && !!start;
 
-  const allTimeZones = (() => {
-    try {
-      // @ts-ignore
-      if (typeof Intl !== "undefined" && (Intl as any).supportedValuesOf) {
-        // @ts-ignore
-        return (Intl as any).supportedValuesOf("timeZone") as string[];
-      }
-    } catch {}
-    return ["UTC", "Europe/Paris", "Africa/Casablanca", "America/New_York", "Asia/Tokyo", "Europe/London"];
+  const MOROCCO_LOCATIONS: string[] = [
+    "Casablanca, Casablanca-Settat, Maroc",
+    "Rabat, Rabat-Salé-Kénitra, Maroc",
+    "Marrakech, Marrakech-Safi, Maroc",
+    "Fès, Fès-Meknès, Maroc",
+    "Tanger, Tanger-Tétouan-Al Hoceïma, Maroc",
+    "Agadir, Souss-Massa, Maroc",
+    "Meknès, Fès-Meknès, Maroc",
+    "Oujda, L'Oriental, Maroc",
+    "Kénitra, Rabat-Salé-Kénitra, Maroc",
+    "Tétouan, Tanger-Tétouan-Al Hoceïma, Maroc",
+    "Safi, Marrakech-Safi, Maroc",
+    "Mohammédia, Casablanca-Settat, Maroc",
+    "El Jadida, Casablanca-Settat, Maroc",
+    "Nador, L'Oriental, Maroc",
+    "Béni Mellal, Béni Mellal-Khénifra, Maroc",
+    "Khouribga, Béni Mellal-Khénifra, Maroc",
+    "Settat, Casablanca-Settat, Maroc",
+    "Khemisset, Rabat-Salé-Kénitra, Maroc",
+    "Ouarzazate, Drâa-Tafilalet, Maroc",
+    "Taza, Fès-Meknès, Maroc",
+    "Laâyoune, Laâyoune-Sakia El Hamra, Maroc",
+    "Dakhla, Dakhla-Oued Ed-Dahab, Maroc",
+    "Salé, Rabat-Salé-Kénitra, Maroc",
+    "Skhirat, Rabat-Salé-Kénitra, Maroc",
+    "Bouznika, Casablanca-Settat, Maroc",
+    "Berrechid, Casablanca-Settat, Maroc",
+    "Sidi Bennour, Casablanca-Settat, Maroc",
+    "Youssoufia, Marrakech-Safi, Maroc",
+    "Essaouira, Marrakech-Safi, Maroc",
+    "Azilal, Béni Mellal-Khénifra, Maroc",
+    "Fquih Ben Salah, Béni Mellal-Khénifra, Maroc",
+    "Khenifra, Béni Mellal-Khénifra, Maroc",
+    "Taounate, Fès-Meknès, Maroc",
+    "Sefrou, Fès-Meknès, Maroc",
+    "Guercif, L'Oriental, Maroc",
+    "Jerada, L'Oriental, Maroc",
+    "Al Hoceïma, Tanger-Tétouan-Al Hoceïma, Maroc",
+    "Chefchaouen, Tanger-Tétouan-Al Hoceïma, Maroc",
+    "Larache, Tanger-Tétouan-Al Hoceïma, Maroc",
+    "Guelmim, Guelmim-Oued Noun, Maroc",
+    "Tan-Tan, Guelmim-Oued Noun, Maroc",
+    "Smara, Laâyoune-Sakia El Hamra, Maroc",
+  ];
+  
+  const locationSuggestions = (() => {
+    const q = location.trim().toLowerCase();
+    if (!q) return MOROCCO_LOCATIONS.slice(0, 8);
+    return MOROCCO_LOCATIONS.filter((s) => s.toLowerCase().includes(q)).slice(0, 10);
   })();
-  const tzSuggestions = location.trim()
-    ? allTimeZones.filter(z => z.toLowerCase().includes(location.trim().toLowerCase())).slice(0, 10)
-    : [];
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,10 +192,10 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
         <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
         <Input placeholder="Company" value={company} onChange={(e) => setCompany(e.target.value)} />
         <div className="relative">
-          <Input placeholder="Location / Time zone" value={location} onChange={(e) => { setLocation(e.target.value); setTzOpen(true); }} onFocus={() => setTzOpen(true)} />
-          {tzOpen && tzSuggestions.length > 0 && (
+          <Input placeholder="Location (ex: Casablanca, Casablanca-Settat, Maroc)" value={location} onChange={(e) => { setLocation(e.target.value); setTzOpen(true); }} onFocus={() => setTzOpen(true)} />
+          {tzOpen && locationSuggestions.length > 0 && (
             <div className="absolute z-20 mt-1 w-full rounded-xl border border-gray-border bg-white/90 backdrop-blur-md shadow-lg max-h-48 overflow-auto">
-              {tzSuggestions.map((z) => (
+              {locationSuggestions.map((z) => (
                 <button type="button" key={z} onClick={() => { setLocation(z); setTzOpen(false); }} className="w-full text-left px-3 py-2 hover:bg-black/5 font-lufga text-sm text-dark">
                   {z}
                 </button>
