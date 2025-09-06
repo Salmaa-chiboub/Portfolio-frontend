@@ -6,10 +6,8 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { fetchWithAuth } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ProjectForm } from "./AdminDashboard";
 import useLongPress from "@/hooks/use-long-press";
-import { useDebouncedValue } from "@/hooks/use-debounce";
 
 type Project = {
   id: number;
@@ -24,8 +22,6 @@ export default function AdminProjects() {
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<number[]>([]);
-  const [query, setQuery] = React.useState("");
-  const debouncedQuery = useDebouncedValue(query, 250);
 
   const [skillRefs, setSkillRefs] = React.useState<{ id: number; name: string; icon?: string }[]>([]);
   const [skillsLoading, setSkillsLoading] = React.useState(false);
@@ -114,7 +110,6 @@ export default function AdminProjects() {
     navigate("/admin/projects/new", { state: { initial: p, projectId: p.id } });
   };
 
-  const filtered = projects.filter(p => p.title.toLowerCase().includes(debouncedQuery.trim().toLowerCase()));
 
   function ProjectCard({ p, selected, setSelected, toggle, openEdit, delOne }: { p: Project; selected: number[]; setSelected: (v: number[]) => void; toggle: (id: number) => void; openEdit: (p: Project) => void; delOne: (id: number) => void; }) {
     const longPressHandlers = useLongPress(() => {
@@ -210,7 +205,6 @@ export default function AdminProjects() {
             <div className="flex items-center justify-between">
               <h1 className="font-lufga text-3xl lg:text-4xl"><span className="text-dark">Manage </span><span className="text-orange">Projects</span></h1>
               <div className="flex items-center gap-3">
-                <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search..." className="h-12 w-64" />
                 <Button variant="admin" onClick={() => navigate("/admin/projects/new")} className="h-12 rounded-full">Create</Button>
               </div>
             </div>
@@ -224,11 +218,11 @@ export default function AdminProjects() {
 
           {loading ? <div className="text-lg text-gray-text">Loading...</div> : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((p) => (
+              {projects.map((p) => (
                 <ProjectCard key={p.id} p={p} selected={selected} setSelected={setSelected} toggle={toggle} openEdit={openEdit} delOne={delOne} />
               ))}
 
-              {filtered.length === 0 && !loading ? <div className="text-center text-gray-text col-span-full py-8">No projects found.</div> : null}
+              {projects.length === 0 && !loading ? <div className="text-center text-gray-text col-span-full py-8">No projects found.</div> : null}
             </div>
           )}
         </div>

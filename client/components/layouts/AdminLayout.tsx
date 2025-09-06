@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, FileText, BadgeCheck, Briefcase, LogOut, Search, UserCircle2, MessageSquare, Menu } from "lucide-react";
+import { LayoutDashboard, FolderKanban, FileText, FileCog, BadgeCheck, Briefcase, LogOut, Search, UserCircle2, MessageSquare, Menu } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fetchWithAuth, clearTokens } from "@/lib/auth";
 import { getApiUrl } from "@/lib/config";
 import FabMenu from "@/components/ui/FabMenu";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function AdminLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
 
   useEffect(() => {
@@ -45,7 +47,7 @@ export default function AdminLayout() {
     { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, onClick: () => navigate("/admin/dashboard") },
     { key: "projects", label: "Projects", icon: FolderKanban, onClick: () => navigate("/admin/projects") },
     { key: "blogs", label: "Blogs", icon: FileText, onClick: () => navigate("/admin/blog") },
-    { key: "content", label: "Content", icon: FileText, onClick: () => navigate("/admin/content") },
+    { key: "content", label: "Content", icon: FileCog, onClick: () => navigate("/admin/content") },
     { key: "skills", label: "Skills", icon: BadgeCheck, onClick: () => navigate("/admin/skills") },
     { key: "experiences", label: "Experiences", icon: Briefcase, onClick: () => navigate("/admin/experiences") },
   ];
@@ -55,14 +57,44 @@ export default function AdminLayout() {
       {/* Top transparent navbar */}
       <nav className="fixed top-0 left-0 right-0 z-30">
         <div className="container mx-auto max-w-7xl px-4" style={{ paddingRight: isMobile ? "0rem" : (sidebarOpen ? "20rem" : "3.5rem") }}>
-          <div className="mt-3 flex items-center justify-between rounded-full border border-gray-border bg-white/50 backdrop-blur-md px-4 py-2 shadow-sm">
+          <div className="mt-3 flex items-center justify-between rounded-full border border-gray-border bg-white/50 backdrop-blur-md px-4 py-2 shadow-sm relative">
             <div className="flex items-center gap-2">
-              <button className="lg:hidden p-2 rounded-full hover:bg-black/5" aria-label="Toggle sidebar" onClick={() => setSidebarOpen(v => !v)}>
-                <Menu className="w-5 h-5" />
+              <button
+                className="lg:hidden p-2 rounded-full hover:bg-black/5"
+                aria-label="Toggle menu"
+                onClick={() => setMobileMenuOpen((v) => !v)}
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
               <div className="px-3 py-1 bg-orange rounded-full">
                 <span className="font-lufga text-white text-sm">Admin</span>
               </div>
+              {mobileMenuOpen && (
+                <div className="absolute left-0 right-0 top-full mt-2 z-50">
+                  <div className="mx-auto max-w-7xl px-4">
+                    <div className="bg-white border border-gray-border rounded-2xl shadow-lg overflow-hidden">
+                      <nav>
+                        <ul className="divide-y divide-gray-border">
+                          {navItems.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                              <li key={item.key}>
+                                <button
+                                  onClick={() => { item.onClick(); setMobileMenuOpen(false); }}
+                                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-orange/10"
+                                >
+                                  <Icon className="w-5 h-5 text-dark" />
+                                  <span className="font-lufga text-sm text-dark">{item.label}</span>
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
@@ -137,7 +169,7 @@ export default function AdminLayout() {
                 return (
                   <li key={item.key}>
                     <button
-                      onClick={item.onClick}
+                      onClick={() => { item.onClick(); if (isMobile) setSidebarOpen(false); }}
                       className="w-full flex items-center gap-3 px-3 py-3 text-left hover:bg-white/10 transition-colors"
                     >
                       <Icon className="w-5 h-5 text-white shrink-0" />

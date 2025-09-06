@@ -6,9 +6,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { fetchWithAuth } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import useLongPress from "@/hooks/use-long-press";
-import { useDebouncedValue } from "@/hooks/use-debounce";
 
 type Experience = {
   id: number;
@@ -27,8 +25,6 @@ export default function AdminExperiences() {
   const [items, setItems] = React.useState<Experience[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<number[]>([]);
-  const [query, setQuery] = React.useState("");
-  const debouncedQuery = useDebouncedValue(query, 250);
   const clickTimer = React.useRef<number | null>(null);
 
   React.useEffect(() => { load(); }, []);
@@ -80,7 +76,6 @@ export default function AdminExperiences() {
 
   const openEdit = (item: Experience) => navigate('/admin/experiences/new', { state: { initial: item, experienceId: item.id } });
 
-  const filtered = items.filter(p => p.title.toLowerCase().includes(debouncedQuery.trim().toLowerCase()));
 
   function ExperienceCard({ p, selected, setSelected, toggle, openEdit, delOne }: { p: Experience; selected: number[]; setSelected: (v: number[]) => void; toggle: (id: number) => void; openEdit: (item: Experience) => void; delOne: (id: number) => void; }) {
     const longPressHandlers = useLongPress(() => {
@@ -169,7 +164,6 @@ export default function AdminExperiences() {
             <div className="flex items-center justify-between">
               <h1 className="font-lufga text-3xl lg:text-4xl"><span className="text-dark">Manage </span><span className="text-orange">Experiences</span></h1>
               <div className="flex items-center gap-3">
-                <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search..." className="h-12 w-64" />
                 <div className="flex items-center gap-3">
                   <Button variant="admin" onClick={() => navigate('/admin/experiences/new')} className="h-12 rounded-full">Create</Button>
                 </div>
@@ -185,7 +179,7 @@ export default function AdminExperiences() {
 
           {loading ? <div className="text-lg text-gray-text">Loading...</div> : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((p) => (
+              {items.map((p) => (
                 <ExperienceCard
                   key={p.id}
                   p={p}
@@ -198,7 +192,7 @@ export default function AdminExperiences() {
               ))}
 
 
-              {filtered.length === 0 && !loading ? <div className="text-center text-gray-text col-span-full py-8">No experiences found.</div> : null}
+              {items.length === 0 && !loading ? <div className="text-center text-gray-text col-span-full py-8">No experiences found.</div> : null}
             </div>
           )}
         </div>

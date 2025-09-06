@@ -1,14 +1,12 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { Trash2, Edit3, MoreHorizontal, Check } from "lucide-react";
+import { Trash2, Edit3, MoreHorizontal, Check, FileText } from "lucide-react";
 import { getApiUrl } from "@/lib/config";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { fetchWithAuth } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import useLongPress from "@/hooks/use-long-press";
-import { useDebouncedValue } from "@/hooks/use-debounce";
 
 type BlogImage = { id: number; image?: string | null; caption?: string | null };
 type BlogPost = { id: number; title: string; slug?: string; content?: string | null; images?: BlogImage[]; created_at?: string };
@@ -18,8 +16,6 @@ export default function AdminBlogs() {
   const [posts, setPosts] = React.useState<BlogPost[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<number[]>([]);
-  const [query, setQuery] = React.useState("");
-  const debouncedQuery = useDebouncedValue(query, 250);
 
   React.useEffect(() => { load(); }, []);
 
@@ -89,7 +85,6 @@ export default function AdminBlogs() {
     navigate("/admin/blog/new", { state: { initial: post, postId: identifier } });
   };
 
-  const filtered = posts.filter(p => p.title.toLowerCase().includes(debouncedQuery.trim().toLowerCase()));
 
   function BlogCard({ p, selected, setSelected, toggle, openEdit, delOne }: { p: BlogPost; selected: number[]; setSelected: (v: number[]) => void; toggle: (id: number) => void; openEdit: (post: BlogPost) => void; delOne: (identifier: string | number) => void; }) {
     const longPressHandlers = useLongPress(() => {
@@ -187,8 +182,7 @@ export default function AdminBlogs() {
             <div className="flex items-center justify-between">
               <h1 className="font-lufga text-3xl lg:text-4xl"><span className="text-dark">Manage </span><span className="text-orange">Posts</span></h1>
               <div className="flex items-center gap-3">
-                <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search..." className="h-12 w-64" />
-                <Button variant="admin" onClick={() => navigate("/admin/blog/new")} className="h-12 rounded-full">Create</Button>
+                <Button variant="admin" onClick={() => navigate("/admin/blog/new")} className="h-12 rounded-full inline-flex items-center gap-2"><FileText className="w-4 h-4" />Create</Button>
               </div>
             </div>
           )}
@@ -201,11 +195,11 @@ export default function AdminBlogs() {
 
           {loading ? <div className="text-lg text-gray-text">Loading...</div> : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((p) => (
+              {posts.map((p) => (
                 <BlogCard key={p.id} p={p} selected={selected} setSelected={setSelected} toggle={toggle} openEdit={openEdit} delOne={delOne} />
               ))}
 
-              {filtered.length === 0 && !loading ? <div className="text-center text-gray-text col-span-full py-8">No articles found.</div> : null}
+              {posts.length === 0 && !loading ? <div className="text-center text-gray-text col-span-full py-8">No articles found.</div> : null}
             </div>
           )}
         </div>
