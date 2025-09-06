@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getApiUrl } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { useHero, useAbout, useBlogs, useProjects, useExperiences } from "@/hooks/use-api";
@@ -170,6 +170,16 @@ export default function Index() {
   const [showCta, setShowCta] = useState(false);
   const [showBlog, setShowBlog] = useState(false);
   const [showContact, setShowContact] = useState(false);
+
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  const lowPerf = prefersReducedMotion || isMobile;
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -663,11 +673,13 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Animated fixed background blobs (non-geometric organic shapes) */}
-      <div className="hero-animated-bg">
-        <div className="hero-blob hero-blob-1 bg-orange-light" />
-        <div className="hero-blob hero-blob-2 bg-orange-light" />
-        <div className="hero-blob hero-blob-3 bg-orange-light" />
-      </div>
+      {!lowPerf && (
+        <div className="hero-animated-bg hidden md:block">
+          <div className="hero-blob hero-blob-1 bg-orange-light" />
+          <div className="hero-blob hero-blob-2 bg-orange-light" />
+          <div className="hero-blob hero-blob-3 bg-orange-light" />
+        </div>
+      )}
       {/* Navigation - Fixed and Responsive */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -801,7 +813,7 @@ export default function Index() {
 
           {/* Mobile Navigation */}
           <div className="md:hidden">
-            <div className="flex items-center justify-between bg-dark rounded-full border border-white/10 backdrop-blur-lg px-3 py-2">
+            <div className="flex items-center justify-between bg-dark rounded-full border border-white/10 px-3 py-2">
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
@@ -843,7 +855,7 @@ export default function Index() {
 
             {/* Mobile Menu Dropdown */}
             {isMobileMenuOpen && (
-              <div className="absolute top-full left-4 right-4 mt-2 bg-dark rounded-2xl border border-white/10 backdrop-blur-lg overflow-hidden">
+              <div className="absolute top-full left-4 right-4 mt-2 bg-dark rounded-2xl border border-white/10 overflow-hidden">
                 <div className="flex flex-col">
                   <a
                     href="#about"
@@ -1190,7 +1202,7 @@ export default function Index() {
             id="services"
             className="py-16 lg:py-24 bg-dark rounded-t-[50px] relative z-0 overflow-hidden"
           >
-            <div className="absolute inset-0 opacity-30">
+            <div className="absolute inset-0 opacity-30 hidden md:block">
               <div className="absolute top-20 right-0 w-96 h-96 bg-orange-light rounded-full blur-3xl transform translate-x-1/2"></div>
               <div className="absolute top-10 left-1/3 w-48 h-48 bg-orange-light rounded-full blur-2xl transform -rotate-45"></div>
               <div className="absolute top-0 left-0 w-72 h-96 bg-orange-light rounded-full blur-2xl transform -translate-x-1/2 rotate-45"></div>
@@ -1330,7 +1342,7 @@ export default function Index() {
       <div ref={ctaRef}>
         {showCta ? (
           <section className="py-16 lg:py-24 bg-dark rounded-[50px] relative overflow-hidden">
-            <div className="absolute inset-0 opacity-20">
+            <div className="absolute inset-0 opacity-20 hidden md:block">
               <div className="absolute top-20 right-0 w-96 h-96 bg-orange-light rounded-full blur-3xl transform translate-x-1/2"></div>
               <div className="absolute bottom-20 left-0 w-96 h-96 bg-orange-light rounded-full blur-3xl transform -translate-x-1/2"></div>
             </div>
@@ -1374,9 +1386,9 @@ export default function Index() {
               style={{ height: '120px', top: '15%', transform: 'rotate(-2deg)' }}
             >
               <motion.div
-                className="bg-white flex items-center gap-4 w-[200%]"
-                animate={{ x: ['0%', '-50%'] }}
-                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                className={`bg-white flex items-center gap-4 ${lowPerf ? 'w-full' : 'w-[200%]'}`}
+                animate={lowPerf ? undefined : { x: ['0%', '-50%'] }}
+                transition={lowPerf ? undefined : { duration: 20, repeat: Infinity, ease: 'linear' }}
               >
                 {/* First set of items */}
                 <span className="text-black font-lufga text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-normal tracking-tight whitespace-nowrap px-4">
