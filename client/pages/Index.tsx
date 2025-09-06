@@ -1292,7 +1292,7 @@ export default function Index() {
               )}
             </div>
           </section>
-        ) : <div style={{ height: isMobile ? 0 : 80 }} />}
+        ) : <div style={{ height: 0 }} />}
       </div>
 
       {/* Experiences Section */}
@@ -1301,7 +1301,7 @@ export default function Index() {
       <Suspense fallback={null}>
         <ExperiencesSectionLazy />
       </Suspense>
-    ) : <div style={{ height: isMobile ? 0 : 80 }} />}
+    ) : <div style={{ height: 0 }} />}
   </div>
 
 
@@ -1314,7 +1314,7 @@ export default function Index() {
         </Suspense>
       </motion.div>
     ) : (
-      <div style={{ minHeight: isMobile ? 0 : 80 }} />
+      <div style={{ minHeight: 0 }} />
     )}
   </div>
 
@@ -1530,7 +1530,7 @@ export default function Index() {
             ) : null
           )
         ) : (
-          <div style={{ minHeight: isMobile ? 0 : 80 }} />
+          <div style={{ minHeight: 0 }} />
         )}
       </div>
 
