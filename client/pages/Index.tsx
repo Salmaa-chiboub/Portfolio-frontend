@@ -463,7 +463,7 @@ export default function Index() {
   const aboutHasCv = !!(about?.cv && String(about.cv).trim());
   const aboutHasEmail = !!(about?.hiring_email && String(about.hiring_email).trim());
   const aboutIsEmpty = !aboutHasDesc && !aboutHasCv && !aboutHasEmail;
-  const aboutCollapsed = (aboutError === true) || aboutIsEmpty || aboutLoading;
+  const aboutCollapsed = aboutIsEmpty;
   const aboutDescOnly = !aboutLoading && aboutHasDesc && !aboutHasCv && !aboutHasEmail;
   const aboutCtaOnly = !aboutLoading && !aboutHasDesc && aboutHasCv && aboutHasEmail;
 
