@@ -18,6 +18,7 @@ export default function AdminLogin() {
 
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
   const forgotControllerRef = useRef<AbortController | null>(null);
   useEffect(() => () => { forgotControllerRef.current?.abort(); }, []);
 
@@ -26,6 +27,7 @@ export default function AdminLogin() {
     if (err) { toast({ title: 'Invalid email', description: err }); return; }
     const controller = new AbortController();
     forgotControllerRef.current = controller;
+    setForgotLoading(true);
     try {
       const url = getApiUrl('/api/users/forgot-password/');
       const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: forgotEmail.trim() }), signal: controller.signal });
@@ -41,6 +43,7 @@ export default function AdminLogin() {
       toast({ title: 'Error', description: e?.message || 'Failed to request password reset.' });
     } finally {
       forgotControllerRef.current = null;
+      setForgotLoading(false);
     }
   };
 
@@ -193,8 +196,10 @@ export default function AdminLogin() {
                       <label className="font-lufga text-sm text-white/80">Email</label>
                       <Input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="you@example.com" className="bg-white text-gray-800" />
                       <div className="flex items-center gap-2 justify-end">
-                        <Button variant="ghost" onClick={() => setForgotOpen(false)}>Cancel</Button>
-                        <Button variant="admin" onClick={handleForgot} disabled={!!validateEmail(forgotEmail)}>Send reset</Button>
+                        <Button variant="ghost" onClick={() => setForgotOpen(false)} disabled={forgotLoading}>Cancel</Button>
+                        <Button variant="admin" onClick={handleForgot} disabled={forgotLoading || !!validateEmail(forgotEmail)}>
+                          {forgotLoading ? 'Sending…' : 'Send reset'}
+                        </Button>
                       </div>
                     </div>
                   </div>

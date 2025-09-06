@@ -462,7 +462,8 @@ export default function Index() {
   const aboutHasDesc = !!(about?.description && String(about.description).trim());
   const aboutHasCv = !!(about?.cv && String(about.cv).trim());
   const aboutHasEmail = !!(about?.hiring_email && String(about.hiring_email).trim());
-  const aboutIsEmpty = !aboutHasDesc && !aboutHasCv && !aboutHasEmail;
+  const aboutHasTitle = !!(about?.title && String(about.title).trim());
+  const aboutIsEmpty = !aboutHasTitle && !aboutHasDesc && !aboutHasCv && !aboutHasEmail;
   const aboutCollapsed = aboutIsEmpty;
   const aboutDescOnly = !aboutLoading && aboutHasDesc && !aboutHasCv && !aboutHasEmail;
   const aboutCtaOnly = !aboutLoading && !aboutHasDesc && aboutHasCv && aboutHasEmail;
@@ -1112,7 +1113,7 @@ export default function Index() {
                   </h2>
                   <div className="w-20 h-1 bg-orange mx-auto rounded-full"></div>
                 </div>
-                {apiReady === true && about?.description ? (
+                {about?.description ? (
                   <div className="text-muted-foreground font-lufga text-lg lg:text-xl leading-relaxed" dangerouslySetInnerHTML={{ __html: about.description }} />
                 ) : null}
               </div>
@@ -1170,7 +1171,7 @@ export default function Index() {
                       </div>
 
                       <div className="space-y-6">
-                        {apiReady === true && about?.description ? (
+                        {about?.description ? (
                           <div className="text-muted-foreground font-lufga text-lg lg:text-xl leading-relaxed" dangerouslySetInnerHTML={{ __html: about.description }} />
                         ) : null}
                       </div>
