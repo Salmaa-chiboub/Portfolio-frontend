@@ -259,12 +259,23 @@ export default function Index() {
   const wheelTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+    let ticking = false;
+    let prev = window.scrollY > 50;
+    setIsScrolled(prev);
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const v = window.scrollY > 50;
+        if (v !== prev) {
+          prev = v;
+          setIsScrolled(v);
+        }
+        ticking = false;
+      });
     };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
 
