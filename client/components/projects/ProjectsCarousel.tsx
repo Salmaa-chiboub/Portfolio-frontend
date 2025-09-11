@@ -60,6 +60,24 @@ export default function ProjectsCarousel() {
 
   const navigate = useNavigate();
 
+  // Touch swipe state for mobile
+  const touchStartX = useRef<number | null>(null);
+  const touchStartTime = useRef<number>(0);
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+    touchStartTime.current = Date.now();
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null) return;
+    const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.current;
+    const dt = Date.now() - touchStartTime.current;
+    const threshold = 40; // px
+    if (Math.abs(dx) > threshold && dt < 800) {
+      if (dx < 0) nextPage(); else prevPage();
+    }
+    touchStartX.current = null;
+  };
+
   // Use react-query projects hook
   const { data: projectsData, isLoading: loading, error } = useProjects();
 
@@ -121,14 +139,14 @@ export default function ProjectsCarousel() {
                         <button
                           onClick={prevPage}
                           aria-label="Previous project"
-                          className="absolute left-0 sm:left-6 md:left-10 xl:left-12 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-gray-border shadow hover:bg-gray-bg transition-colors flex items-center justify-center"
+                          className="hidden sm:flex absolute left-0 sm:left-6 md:left-10 xl:left-12 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-gray-border shadow hover:bg-gray-bg transition-colors items-center justify-center"
                         >
                           <ChevronLeft className="w-6 h-6 text-gray-text" />
                         </button>
                         <button
                           onClick={nextPage}
                           aria-label="Next project"
-                          className="absolute right-0 sm:right-6 md:right-10 xl:right-12 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-gray-border shadow hover:bg-gray-bg transition-colors flex items-center justify-center"
+                          className="hidden sm:flex absolute right-0 sm:right-6 md:right-10 xl:right-12 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-gray-border shadow hover:bg-gray-bg transition-colors items-center justify-center"
                         >
                           <ChevronRight className="w-6 h-6 text-gray-text" />
                         </button>
@@ -140,7 +158,7 @@ export default function ProjectsCarousel() {
                       onClick={() => navigate(`/projects/${currentProject.id}`, { state: { project: currentProject } })}
                       aria-label={`Open ${currentProject.title}`}
                     >
-                      <div className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300">
+                      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300">
                         <img
                           src={addCacheBuster(src)}
                           alt={currentProject.title}
@@ -193,27 +211,27 @@ export default function ProjectsCarousel() {
             ) : null;
           })()}
 
-          {/* Featured Project Section */}
-          {featuredProject && (
-            <div className="w-full max-w-[742px] flex flex-col items-center gap-6">
+          {/* Current Project Title & Excerpt (updates with navigation) */}
+          {currentProject && (
+            <div className="w-full max-w-[860px] flex flex-col items-center gap-6">
               <div className="flex items-end gap-4.5">
                 <h3 className="font-lufga font-bold text-3xl sm:text-4xl lg:text-5xl text-gray-text leading-tight tracking-tight">
-                  {featuredProject.title}
+                  {currentProject.title}
                 </h3>
-                
+
                 <button
-                  onClick={() => navigate(`/projects/${featuredProject.id}`, { state: { project: featuredProject } })}
+                  onClick={() => navigate(`/projects/${currentProject.id}`, { state: { project: currentProject } })}
                   className="flex items-center justify-center w-[58px] h-[58px] bg-orange rounded-full border-2 border-orange hover:bg-orange/90 transition-colors transform -rotate-90"
-                  aria-label={`View ${featuredProject.title} project`}
+                  aria-label={`View ${currentProject.title} project`}
                 >
                   <ArrowUpRight className="w-8 h-8 text-white" strokeWidth={2} />
                 </button>
               </div>
-              
+
               <div className="w-full text-center">
                 <p className="font-lufga text-xl text-gray-text leading-normal tracking-tight">
                   {(() => {
-                    const html = String(featuredProject.description || "");
+                    const html = String(currentProject.description || "");
                     const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
                     const limit = 220;
                     return text.length > limit ? text.slice(0, limit - 1) + "…" : text;

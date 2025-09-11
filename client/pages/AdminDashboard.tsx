@@ -350,7 +350,7 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
   // existing media fetched from initial
   const [existingMedia, setExistingMedia] = useState<{ id: number; image?: string | null }[]>(initial?.media ? initial.media.map((m: any) => ({ id: m.id, image: m.image })) : []);
 
-  const [selected, setSelected] = useState<number[]>(initial?.skills_list ? initial.skills_list.map((s: any) => s.id).filter(Boolean) : []);
+  const [selected, setSelected] = useState<number[]>(initial?.skills_list ? initial.skills_list.map((s: any) => s.skill_reference || s.id).filter(Boolean) : []);
   const [submitting, setSubmitting] = useState(false);
   const [skillQuery, setSkillQuery] = useState("");
   const [links, setLinks] = useState<{ id?: number; url: string; text: string }[]>([]);
@@ -367,7 +367,7 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
     // sync fields when initial changes
     setTitle(initial?.title || "");
     setDescription(initial?.description || "");
-    setSelected(initial?.skills_list ? initial.skills_list.map((s: any) => s.id).filter(Boolean) : []);
+    setSelected(initial?.skills_list ? initial.skills_list.map((s: any) => s.skill_reference || s.id).filter(Boolean) : []);
     setExistingMedia(initial?.media ? initial.media.map((m: any) => ({ id: m.id, image: m.image })) : []);
     setNewImages([]);
     setPreviews([]);
