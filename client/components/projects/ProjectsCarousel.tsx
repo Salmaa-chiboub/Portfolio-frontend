@@ -266,7 +266,7 @@ export default function ProjectsCarousel() {
                                   </h3>
                                   <div className="font-lufga text-sm text-orange-lighter leading-relaxed line-clamp-3" dangerouslySetInnerHTML={{ __html: project.description || "" }} />
                                 </div>
-                                <div className="absolute bottom-6 right-6 flex flex-col gap-2 items-end">
+                                <div className="hidden">
                                   {project.links && project.links.length > 0 ? project.links.slice(0,6).map((l) => {
                                     const isGithub = (l.text || "").toLowerCase().includes("github") || (l.url || "").toLowerCase().includes("github");
                                     const label = (l.text && l.text.trim()) ? l.text : (l.url ? l.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[/?#]/)[0] : 'Link');
@@ -384,7 +384,7 @@ export default function ProjectsCarousel() {
                                   </h3>
                                   <div className="font-lufga text-xs lg:text-sm text-orange-lighter leading-relaxed line-clamp-3" dangerouslySetInnerHTML={{ __html: project.description || "" }} />
                                 </div>
-                                <div className="absolute bottom-6 right-6 flex flex-col gap-2 items-end">
+                                <div className="hidden">
                                   {project.links && project.links.length > 0 ? project.links.slice(0,6).map((l) => {
                                     const isGithub = (l.text || "").toLowerCase().includes("github") || (l.url || "").toLowerCase().includes("github");
                                     const label = (l.text && l.text.trim()) ? l.text : (l.url ? l.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[/?#]/)[0] : 'Link');
