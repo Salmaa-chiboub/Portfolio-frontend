@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState, memo } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getApiUrl } from "@/lib/config";
@@ -48,6 +48,16 @@ const truncate = (s: string, max: number) => {
 };
 
 export default function ExperiencesSection() {
+  // Perf flags
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check, { passive: true } as any);
+    return () => window.removeEventListener("resize", check as any);
+  }, []);
+  const lowPerf = prefersReducedMotion || isMobile;
 
   // Data state
   const [experiences, setExperiences] = useState<ExperienceItem[]>([]);
@@ -182,10 +192,10 @@ export default function ExperiencesSection() {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.9, ease: "easeOut" }} className="container mx-auto max-w-7xl px-4">
             <div className="text-center mb-12 lg:mb-16">
               <motion.h2
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 1.0, ease: "easeOut" }}
+                initial={lowPerf ? undefined : { opacity: 0, y: 16 }}
+                whileInView={lowPerf ? undefined : { opacity: 1, y: 0 }}
+                viewport={lowPerf ? undefined : { once: true, amount: 0.5 }}
+                transition={lowPerf ? undefined : { duration: 1.0, ease: "easeOut" }}
                 className="text-4xl sm:text-5xl lg:text-6xl font-lufga font-medium"
               >
                 <span className="text-gray-text">Professional </span>
@@ -246,6 +256,7 @@ export default function ExperiencesSection() {
                     exp={exp}
                     idx={idx}
                     onLeft={idx % 2 === 0}
+                    lowPerf={lowPerf}
                     expanded={!!expandedExp[exp.id]}
                     setExpanded={(v) =>
                       setExpandedExp((prev) => ({ ...prev, [exp.id]: typeof v === "boolean" ? v : !prev[exp.id] }))
@@ -280,16 +291,18 @@ function buildNextUrl(getUrl: (p: string) => string | undefined, u: string | nul
   }
 }
 
-function TimelineRow({
+function TimelineRowBase({
   exp,
   idx,
   onLeft,
+  lowPerf,
   expanded,
   setExpanded,
 }: {
   exp: ExperienceItem;
   idx: number;
   onLeft: boolean;
+  lowPerf: boolean;
   expanded: boolean;
   setExpanded: (v?: boolean) => void;
 }) {
@@ -321,7 +334,7 @@ function TimelineRow({
   }, [expanded, exp.description, exp.title, exp.company, start, end]);
 
   return (
-    <div ref={rowRef} className={cn("relative lg:py-12")}>
+    <div ref={rowRef} className={cn("relative lg:py-12")}> 
       {/* Dot */}
       <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 top-3 w-6 h-6 bg-orange rounded-full shadow-lg" />
 
@@ -349,10 +362,10 @@ function TimelineRow({
           <>
             <div className="self-center">
               <motion.article ref={cardRef as any}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
+                initial={lowPerf ? undefined : { opacity: 0, y: 24 }}
+                whileInView={lowPerf ? undefined : { opacity: 1, y: 0 }}
+                viewport={lowPerf ? undefined : { once: true, amount: 0.5 }}
+                transition={lowPerf ? undefined : { duration: 0.7, ease: "easeOut" }}
                 className="border border-gray-border rounded-2xl p-5 lg:p-6 bg-background shadow-sm"
               >
                 <header className="mb-2">
@@ -412,10 +425,10 @@ function TimelineRow({
             <div className="hidden lg:block" />
             <div className="self-center">
               <motion.article ref={cardRef as any}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
+                initial={lowPerf ? undefined : { opacity: 0, y: 24 }}
+                whileInView={lowPerf ? undefined : { opacity: 1, y: 0 }}
+                viewport={lowPerf ? undefined : { once: true, amount: 0.5 }}
+                transition={lowPerf ? undefined : { duration: 0.7, ease: "easeOut" }}
                 className="border border-gray-border rounded-2xl p-5 lg:p-6 bg-background shadow-sm"
               >
                 <header className="mb-2">
@@ -474,3 +487,14 @@ function TimelineRow({
     </div>
   );
 }
+
+// Memoized row to avoid unnecessary re-renders during scroll and timeline updates
+const TimelineRow = memo(TimelineRowBase, (prev, next) => {
+  return (
+    prev.exp.id === next.exp.id &&
+    prev.idx === next.idx &&
+    prev.onLeft === next.onLeft &&
+    prev.lowPerf === next.lowPerf &&
+    prev.expanded === next.expanded
+  );
+});

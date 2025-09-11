@@ -14,6 +14,7 @@ import { getApiUrl, MAX_PROJECT_IMAGES, MAX_PROJECT_LINKS } from "@/lib/config";
 import { fetchWithAuth } from "@/lib/auth";
 import { isValidUrl } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { file } from "zod/v4";
 
 export default function AdminDashboard() {
   return (
@@ -312,10 +313,15 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
 export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, onCancel }: { skillRefs: { id: number; name: string; icon?: string }[]; loading: boolean; onDone: (updated?: any) => void; initial?: any; projectId?: number; onCancel?: () => void; }) {
   const [title, setTitle] = useState(initial?.title || "");
   const [description, setDescription] = useState(initial?.description || "");
+  const MAX_DESCRIPTION_LENGTH = 2000;
 
-  // new files to upload
-  const [newImages, setNewImages] = useState<File[]>([]);
+  // new files to upload with metadata
+  const [newImages, setNewImages] = useState<Array<{ file: File; caption: string }>>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  
+  // Supported file types and max size (5MB)
+  const SUPPORTED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
   // existing media fetched from initial
   const [existingMedia, setExistingMedia] = useState<{ id: number; image?: string | null }[]>(initial?.media ? initial.media.map((m: any) => ({ id: m.id, image: m.image })) : []);
@@ -349,19 +355,60 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
   }, [initial]);
 
   useEffect(() => {
-    const urls = newImages.map((f) => URL.createObjectURL(f));
+    const urls = newImages.map((f) => URL.createObjectURL(f.file));
     setPreviews(urls);
     return () => { urls.forEach((u) => URL.revokeObjectURL(u)); };
   }, [newImages]);
 
   const addProjectFiles = (fl: FileList | null) => {
     if (!fl || fl.length === 0) return;
-    const incoming = Array.from(fl);
-    setNewImages((prev) => {
-      const currentCount = prev.length + existingMedia.length;
-      const space = Math.max(0, MAX_PROJECT_IMAGES - currentCount);
-      const next = prev.concat(incoming.slice(0, space));
-      return next;
+    
+    const files = Array.from(fl);
+    const validFiles: { file: File; caption: string }[] = [];
+    
+    files.forEach(file => {
+      if (validFiles.length + newImages.length + existingMedia.length >= MAX_PROJECT_IMAGES) {
+        toast({
+          title: 'Maximum d\'images atteint',
+          description: `Vous ne pouvez pas ajouter plus de ${MAX_PROJECT_IMAGES} images.`
+        });
+        return;
+      }
+      
+      if (!SUPPORTED_FILE_TYPES.includes(file.type)) {
+        toast({
+          title: 'Format non supporté',
+          description: `Le fichier ${file.name} n'est pas un format d'image valide (JPEG, PNG, WebP).`,
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: 'Fichier trop volumineux',
+          description: `Le fichier ${file.name} dépasse la taille maximale de 5MB.`,
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      validFiles.push({
+        file,
+        caption: file.name.split('.')[0] // Default caption from filename
+      });
+    });
+    
+    if (validFiles.length > 0) {
+      setNewImages(prev => [...prev, ...validFiles]);
+    }
+  };
+
+  const updateImageCaption = (index: number, caption: string) => {
+    setNewImages(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], caption };
+      return updated;
     });
   };
 
@@ -385,7 +432,10 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
   const toggle = (id: number) => setSelected((prev) => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
   const totalImages = existingMedia.length + newImages.length;
-  const valid = title.trim().length >= 3 && description.trim().length >= 10 && totalImages <= MAX_PROJECT_IMAGES;
+  const valid = title.trim().length >= 3 && 
+               description.trim().length >= 10 && 
+               description.length <= MAX_DESCRIPTION_LENGTH &&
+               totalImages <= MAX_PROJECT_IMAGES;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -424,8 +474,24 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
         fd.append('new_skills', JSON.stringify(newSkills));
       }
 
-      // include new media files if any (backend will replace existing media when provided)
-      newImages.slice(0, MAX_PROJECT_IMAGES).forEach((f) => fd.append('media_files', f));
+      // Add new media files with metadata
+      newImages.forEach(({ file }, index) => {
+        fd.append('media_files', file);
+      });
+      
+      // Add images metadata (captions and order)
+      const imagesMeta = [
+        ...existingMedia.map((_, index) => ({
+          caption: `Image ${index + 1}`,
+          order: index
+        })),
+        ...newImages.map(({ caption }, index) => ({
+          caption: caption || `Image ${existingMedia.length + index + 1}`,
+          order: existingMedia.length + index
+        }))
+      ];
+      
+      fd.append('images_meta', JSON.stringify(imagesMeta));
 
       const url = projectId ? getApiUrl(`/api/projects/${projectId}/`) : getApiUrl('/api/projects/');
       const method = projectId ? 'PUT' : 'POST';
@@ -442,7 +508,18 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
   return (
     <form onSubmit={submit} className="space-y-4">
       <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required className="h-12 text-lg" />
-      <RichTextTextarea placeholder="Description" value={description} onChange={(v) => setDescription(v)} rows={6} />
+      <div className="relative">
+        <RichTextTextarea 
+          placeholder="Description" 
+          value={description} 
+          onChange={(v) => setDescription(v)}
+          rows={6} 
+          className={description.length > MAX_DESCRIPTION_LENGTH ? 'border-red-500' : ''}
+        />
+        <div className={`absolute bottom-2 right-2 text-xs ${description.length > MAX_DESCRIPTION_LENGTH ? 'text-red-500' : 'text-gray-500'}`}>
+          {description.length}/{MAX_DESCRIPTION_LENGTH}
+        </div>
+      </div>
 
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -533,9 +610,29 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
           <div className="mt-2">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
               {newImages.map((f, i) => (
-                <div key={`${f.name}-${i}`} className="relative group">
-                  <img src={previews[i]} alt={f.name} className="w-full h-24 object-cover rounded-xl border border-gray-border" />
-                  <button type="button" aria-label="Remove image" onClick={() => removeNewImage(i)} className="absolute top-1 right-1 p-1 rounded-full bg-white/90 border border-gray-border hover:bg-white"><X className="w-4 h-4 text-dark" /></button>
+                <div key={`${f.file.name}-${i}`} className="relative group">
+                  <img 
+                    src={previews[i]} 
+                    alt={f.file.name} 
+                    className="w-full h-24 object-cover rounded-t-xl border border-gray-border" 
+                  />
+                  <div className="p-2 bg-white border-x border-b border-gray-border rounded-b-xl">
+                    <input
+                      type="text"
+                      value={f.caption}
+                      onChange={(e) => updateImageCaption(i, e.target.value)}
+                      placeholder="Légende de l'image"
+                      className="w-full text-xs p-1 border border-gray-200 rounded"
+                    />
+                  </div>
+                  <button 
+                    type="button" 
+                    aria-label="Remove image" 
+                    onClick={() => removeNewImage(i)} 
+                    className="absolute top-1 right-1 p-1 rounded-full bg-white/90 border border-gray-border hover:bg-white"
+                  >
+                    <X className="w-4 h-4 text-dark" />
+                  </button>
                 </div>
               ))}
             </div>
@@ -715,24 +812,37 @@ export function BlogForm({ onDone, initial, postId, onCancel }: { onDone: () => 
       }
 
       const fd = new FormData();
+      // Champs de base
       fd.append("title", title.trim());
       fd.append("content", content);
 
-      // links: when editing we send full links_data to replace existing links
-      if (links.length > 0) {
-        const cleaned = links.map((l, i) => ({ url: (l.url || '').trim(), text: (l.text || l.url || '').trim(), order: i })).filter(l => l.url);
-        if (cleaned.length > 0) fd.append("links_data", JSON.stringify(cleaned));
-      } else {
-        // send empty array to clear links if none
-        fd.append("links_data", JSON.stringify([]));
+      // Images et métadonnées
+      if (newImages.length > 0) {
+        // Ajouter chaque image avec le champ uploaded_images (au pluriel comme dans le cURL)
+        newImages.slice(0, MAX_BLOG_IMAGES).forEach((file) => {
+          fd.append("uploaded_images", file);
+        });
+        
+        // Préparer les métadonnées des images
+        const imagesMeta = newImages.map((_, index) => ({
+          caption: newCaptions[index] || "",
+          order: index
+        }));
+        
+        // Ajouter les métadonnées au format JSON
+        fd.append("images_meta", JSON.stringify(imagesMeta));
       }
 
-      // If there are newly selected images, include them. Note: backend will replace existing images when uploaded_images is provided.
-      if (newImages.length > 0) {
-        newImages.slice(0, MAX_BLOG_IMAGES).forEach((f) => fd.append("uploaded_images", f));
-        const meta = newImages.map((_, i) => ({ caption: newCaptions[i] || "" }));
-        fd.append("images_meta", JSON.stringify(meta));
-      }
+      // Liens
+      const linksData = links
+        .map((link, index) => ({
+          url: (link.url || '').trim(),
+          text: (link.text || link.url || '').trim(),
+          order: index + 1 // Les ordres commencent à 1 dans l'exemple cURL
+        }))
+        .filter(link => link.url); // Ne garder que les liens avec une URL
+      
+      fd.append("links_data", JSON.stringify(linksData));
 
       const url = postId ? getApiUrl(`/api/blog/posts/${postId}/`) : getApiUrl("/api/blog/posts/");
       const method = postId ? "PUT" : "POST";
