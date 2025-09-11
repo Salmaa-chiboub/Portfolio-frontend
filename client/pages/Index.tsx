@@ -1138,7 +1138,7 @@ export default function Index() {
                 {aboutInView && (
                   <>
                     {/* Left 35% - Motifs + Download */}
-                    <div className="lg:col-span-1 flex items-center justify-center">
+                    <div className="order-2 lg:order-1 lg:col-span-1 flex items-center justify-center">
                       <div className="relative w-full max-w-sm flex flex-col items-center justify-center min-h-[360px]">
                         {(about?.cv || (about?.hiring_email && about.hiring_email.trim() !== "")) && (
                           <>
@@ -1177,7 +1177,7 @@ export default function Index() {
                     </div>
 
                     {/* Right 65% - About content */}
-                    <div className="lg:col-span-2 space-y-8 lg:space-y-10 text-center lg:text-left">
+                    <div className="order-1 lg:order-2 lg:col-span-2 space-y-8 lg:space-y-10 text-center lg:text-left">
                       <div className="space-y-4">
                         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-lufga font-bold">
                           {aboutFirst && <span className="text-dark">{aboutFirst} </span>}

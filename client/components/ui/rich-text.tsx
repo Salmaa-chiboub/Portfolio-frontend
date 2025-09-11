@@ -96,7 +96,7 @@ export default function RichTextTextarea({
         onInput={onInput}
         onKeyDown={onKeyDown}
         className={"w-full min-h-[120px] rounded-xl border border-gray-border p-3 font-lufga text-base text-gray-text bg-white/0 " + className}
-        style={{ minHeight: rows * 24 }}
+        style={{ minHeight: rows * 24, whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere', overflowX: 'auto' }}
       />
     </div>
     </div>

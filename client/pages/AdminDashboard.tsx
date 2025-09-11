@@ -228,15 +228,15 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
           placeholder="Description" 
           value={description} 
           onChange={(v) => {
-            // Only update if visible text is under 9000 chars
+            // Only update if visible text is under 5000 chars
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = v.replace(/<[^>]*>/g, ''); // Remove HTML tags
+            tempDiv.innerHTML = v.replace(/<[^>]*>/g, '');
             const visibleText = tempDiv.textContent || '';
-            if (visibleText.length <= 9000) {
+            if (visibleText.length <= 5000) {
               setDescription(v);
             }
-          }} 
-          rows={6} 
+          }}
+          rows={6}
         />
         <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded">
           {(() => {
@@ -244,7 +244,7 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = description.replace(/<[^>]*>/g, '');
             const visibleText = tempDiv.textContent || '';
-            return `${visibleText.length}/9000`;
+            return `${visibleText.length}/5000`;
           })()}
         </div>
       </div>
@@ -337,7 +337,7 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
 export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, onCancel }: { skillRefs: { id: number; name: string; icon?: string }[]; loading: boolean; onDone: (updated?: any) => void; initial?: any; projectId?: number; onCancel?: () => void; }) {
   const [title, setTitle] = useState(initial?.title || "");
   const [description, setDescription] = useState(initial?.description || "");
-  const MAX_DESCRIPTION_LENGTH = 2000;
+  const MAX_DESCRIPTION_LENGTH = 5000;
 
   // new files to upload with metadata
   const [newImages, setNewImages] = useState<Array<{ file: File; caption: string }>>([]);
@@ -456,9 +456,8 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
   const toggle = (id: number) => setSelected((prev) => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
   const totalImages = existingMedia.length + newImages.length;
-  const valid = title.trim().length >= 3 && 
-               description.trim().length >= 10 && 
-               description.length <= MAX_DESCRIPTION_LENGTH &&
+  const valid = title.trim().length >= 3 &&
+               ((): boolean => { const el = document.createElement('div'); el.innerHTML = description; const len = (el.textContent || '').length; return len >= 10 && len <= MAX_DESCRIPTION_LENGTH; })() &&
                totalImages <= MAX_PROJECT_IMAGES;
 
   const submit = async (e: React.FormEvent) => {
@@ -533,15 +532,20 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
     <form onSubmit={submit} className="space-y-4">
       <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required className="h-12 text-lg" />
       <div className="relative">
-        <RichTextTextarea 
-          placeholder="Description" 
-          value={description} 
-          onChange={(v) => setDescription(v)}
-          rows={6} 
-          className={description.length > MAX_DESCRIPTION_LENGTH ? 'border-red-500' : ''}
+        <RichTextTextarea
+          placeholder="Description"
+          value={description}
+          onChange={(v) => {
+            const el = document.createElement('div');
+            el.innerHTML = v;
+            const visibleLen = (el.textContent || '').length;
+            if (visibleLen <= MAX_DESCRIPTION_LENGTH) setDescription(v);
+          }}
+          rows={6}
+          className={((): string => { const el = document.createElement('div'); el.innerHTML = description; const len = (el.textContent || '').length; return len > MAX_DESCRIPTION_LENGTH ? 'border-red-500' : ''; })()}
         />
-        <div className={`absolute bottom-2 right-2 text-xs ${description.length > MAX_DESCRIPTION_LENGTH ? 'text-red-500' : 'text-gray-500'}`}>
-          {description.length}/{MAX_DESCRIPTION_LENGTH}
+        <div className={(() => { const el = document.createElement('div'); el.innerHTML = description; const len = (el.textContent || '').length; return `absolute bottom-2 right-2 text-xs ${len > MAX_DESCRIPTION_LENGTH ? 'text-red-500' : 'text-gray-500'}`; })()}>
+          {(() => { const el = document.createElement('div'); el.innerHTML = description; const len = (el.textContent || '').length; return `${len}/${MAX_DESCRIPTION_LENGTH}`; })()}
         </div>
       </div>
 
@@ -704,7 +708,7 @@ export function BlogForm({ onDone, initial, postId, onCancel }: { onDone: () => 
   // Use the shared project images limit so both forms stay consistent
   const MAX_BLOG_IMAGES = MAX_PROJECT_IMAGES;
   const totalImagesCount = existingImages.length + newImages.length;
-  const valid = title.trim().length >= 3 && content.trim().length >= 10 && totalImagesCount <= MAX_BLOG_IMAGES;
+  const valid = title.trim().length >= 3 && ((): boolean => { const el = document.createElement('div'); el.innerHTML = content.replace(/<[^>]*>/g, ''); const len = (el.textContent || '').length; return len >= 10 && len <= 5000; })() && totalImagesCount <= MAX_BLOG_IMAGES;
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const triggerPicker = () => inputRef.current?.click();
@@ -889,15 +893,15 @@ export function BlogForm({ onDone, initial, postId, onCancel }: { onDone: () => 
           placeholder="Content" 
           value={content} 
           onChange={(v) => {
-            // Only update if visible text is under 9000 chars
+            // Only update if visible text is under 5000 chars
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = v.replace(/<[^>]*>/g, ''); // Remove HTML tags
             const visibleText = tempDiv.textContent || '';
-            if (visibleText.length <= 9000) {
+            if (visibleText.length <= 5000) {
               setContent(v);
             }
-          }} 
-          rows={8} 
+          }}
+          rows={8}
         />
         <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded">
           {(() => {
@@ -905,7 +909,7 @@ export function BlogForm({ onDone, initial, postId, onCancel }: { onDone: () => 
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = content.replace(/<[^>]*>/g, '');
             const visibleText = tempDiv.textContent || '';
-            return `${visibleText.length}/9000`;
+            return `${visibleText.length}/5000`;
           })()}
         </div>
       </div>

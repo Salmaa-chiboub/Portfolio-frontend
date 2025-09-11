@@ -253,7 +253,7 @@ export default function ProjectsCarousel() {
                             <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-10 backdrop-blur-[12.5px] bg-black/40 rounded-[32px] min-h-[200px]">
                               <div className="flex justify-between items-start gap-4">
                                 <div className="flex-1 min-w-0 pr-4">
-                                  <h3 className="font-lufga font-bold text-3xl sm:text-4xl lg:text-5xl text-white mb-3 leading-tight truncate project-card-title">
+                                  <h3 className="font-lufga font-bold text-3xl sm:text-4xl lg:text-5xl text-white mb-3 leading-tight line-clamp-2 break-words project-card-title">
                                     {(() => {
                                       const parts = splitTitle(project.title);
                                       return (
@@ -264,11 +264,9 @@ export default function ProjectsCarousel() {
                                       );
                                     })()}
                                   </h3>
-                                  <p className="font-lufga text-sm text-orange-lighter leading-relaxed line-clamp-3">
-                                    {excerpt(project.description, 140)}
-                                  </p>
+                                  <div className="font-lufga text-sm text-orange-lighter leading-relaxed line-clamp-3" dangerouslySetInnerHTML={{ __html: project.description || "" }} />
                                 </div>
-                                <div className="flex-shrink-0 flex flex-wrap gap-2 justify-end">
+                                <div className="absolute bottom-6 right-6 flex flex-col gap-2 items-end">
                                   {project.links && project.links.length > 0 ? project.links.slice(0,6).map((l) => {
                                     const isGithub = (l.text || "").toLowerCase().includes("github") || (l.url || "").toLowerCase().includes("github");
                                     const label = (l.text && l.text.trim()) ? l.text : (l.url ? l.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[/?#]/)[0] : 'Link');
@@ -373,7 +371,7 @@ export default function ProjectsCarousel() {
                             <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-10 backdrop-blur-[12.5px] bg-black/40 rounded-[32px] min-h-[200px]">
                               <div className="flex justify-between items-start gap-2 lg:gap-4">
                                 <div className="flex-1 min-w-0 pr-4">
-                                  <h3 className="font-lufga font-bold text-3xl lg:text-4xl xl:text-5xl text-white mb-3 leading-tight truncate project-card-title">
+                                  <h3 className="font-lufga font-bold text-3xl lg:text-4xl xl:text-5xl text-white mb-3 leading-tight line-clamp-2 break-words project-card-title">
                                     {(() => {
                                       const parts = splitTitle(project.title);
                                       return (
@@ -384,11 +382,9 @@ export default function ProjectsCarousel() {
                                       );
                                     })()}
                                   </h3>
-                                  <p className="font-lufga text-xs lg:text-sm text-orange-lighter leading-relaxed line-clamp-3">
-                                    {excerpt(project.description, off === 0 ? 140 : 100)}
-                                  </p>
+                                  <div className="font-lufga text-xs lg:text-sm text-orange-lighter leading-relaxed line-clamp-3" dangerouslySetInnerHTML={{ __html: project.description || "" }} />
                                 </div>
-                                <div className="flex-shrink-0 flex flex-wrap gap-2 justify-end">
+                                <div className="absolute bottom-6 right-6 flex flex-col gap-2 items-end">
                                   {project.links && project.links.length > 0 ? project.links.slice(0,6).map((l) => {
                                     const isGithub = (l.text || "").toLowerCase().includes("github") || (l.url || "").toLowerCase().includes("github");
                                     const label = (l.text && l.text.trim()) ? l.text : (l.url ? l.url.replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[/?#]/)[0] : 'Link');

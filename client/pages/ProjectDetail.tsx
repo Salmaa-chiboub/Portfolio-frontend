@@ -293,16 +293,16 @@ export default function ProjectDetail() {
             )}>
               {/* Description - 70% or full width */}
               <div className="space-y-4">
-                <div 
-                  className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={
-                    project.description.includes("<") 
-                      ? { __html: project.description }
-                      : undefined
-                  }
-                >
-                  {!project.description.includes("<") && project.description}
-                </div>
+                {project.description.includes("<") ? (
+                  <div
+                    className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: project.description }}
+                  />
+                ) : (
+                  <div className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed whitespace-pre-wrap">
+                    {project.description}
+                  </div>
+                )}
               </div>
 
               {/* Sidebar - Stack and Links - 30% */}
