@@ -35,15 +35,30 @@ const addCacheBuster = (u: string) => {
 import { getApiUrl } from "@/lib/config";
 import { useProjects } from "@/hooks/use-api";
 
-const categories = ["Landing Page", "Product Design", "Animation", "Glassmorphism", "Cards"];
+function parseSkills(list?: unknown): string[] {
+  let items: unknown[] = [];
+  if (Array.isArray(list)) items = list;
+  else if (typeof list === "string") {
+    const s = list.trim();
+    try { const parsed = JSON.parse(s); if (Array.isArray(parsed)) items = parsed; } catch { items = s.split(",").map(x => x.trim()).filter(Boolean); }
+  }
+  const names: string[] = [];
+  for (const it of items) {
+    if (typeof it === "string") { const v = it.trim(); if (v) names.push(v); }
+    else if (it && typeof it === "object") {
+      const anyIt: any = it as any;
+      const name = typeof anyIt.name === "string" ? anyIt.name : anyIt.skill_reference && typeof anyIt.skill_reference.name === "string" ? anyIt.skill_reference.name : "";
+      if (name) names.push(name.trim());
+    }
+  }
+  return Array.from(new Set(names.filter(Boolean)));
+}
 
 export default function ProjectsCarousel() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  
+
   const navigate = useNavigate();
-  const projectsPerPage = 2;
 
   // Use react-query projects hook
   const { data: projectsData, isLoading: loading, error } = useProjects();
@@ -52,20 +67,16 @@ export default function ProjectsCarousel() {
     setProjects(Array.isArray(projectsData) ? projectsData : (projectsData && (projectsData as any).results) || []);
   }, [projectsData]);
 
-  const filteredProjects = useMemo(() => {
-    if (selectedCategory === "All") return projects;
-    // In a real app, you'd filter by project category/type
-    return projects;
-  }, [projects, selectedCategory]);
+  const filteredProjects = projects;
 
-  const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
-  const currentProjects = filteredProjects.slice(currentPage * projectsPerPage, (currentPage + 1) * projectsPerPage);
+  const totalPages = filteredProjects.length;
+  const currentProject = filteredProjects.length > 0 ? filteredProjects[Math.min(currentPage, filteredProjects.length - 1)] : null;
 
-  // Featured project (first project or fallback)
-  const featuredProject = projects.length > 0 ? projects[0] : null;
+  // Featured project (last project)
+  const featuredProject = projects.length > 0 ? projects[projects.length - 1] : null;
 
   const goToPage = (page: number) => {
-    setCurrentPage(Math.max(0, Math.min(page, totalPages - 1)));
+    setCurrentPage(Math.max(0, Math.min(page, Math.max(0, totalPages - 1))));
   };
 
   const nextPage = () => goToPage(currentPage + 1);
@@ -80,7 +91,7 @@ export default function ProjectsCarousel() {
         <div className="flex justify-between items-center mb-12">
           <h2 className="font-lufga font-semibold text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-tight">
             <span className="text-gray-text">Lets have a look at my </span>
-            <span className="text-orange">Portfolio</span>
+            <span className="text-orange">Projects</span>
           </h2>
           
           <button 
@@ -102,37 +113,47 @@ export default function ProjectsCarousel() {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {currentProjects.map((project) => {
-                  const primaryImage = project?.media?.[0]?.image || "/project-placeholder.svg";
-                  
-                  return (
-                    <div key={project.id} className="w-full">
-                      <button
-                        className="block w-full text-left group"
-                        onClick={() => navigate(`/projects/${project.id}`, { state: { project } })}
-                        aria-label={`Open ${project.title}`}
-                      >
-                        <div className="relative w-full h-[371px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300">
-                          <img
-                            src={addCacheBuster(primaryImage)}
-                            alt={project.title}
-                            className="absolute inset-0 w-full h-full object-cover"
-                            onError={(e) => {
-                              const img = e.currentTarget as HTMLImageElement;
-                              if (img.src.includes("project-placeholder.svg")) return;
-                              img.onerror = null;
-                              img.src = "/project-placeholder.svg";
-                            }}
-                          />
-                          {/* Gradient overlay matching Figma design */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/36 to-black/50 opacity-60" />
-                        </div>
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
+              currentProject ? (() => {
+                const media = Array.isArray(currentProject.media) ? [...currentProject.media].sort((a,b)=> (a.order ?? 0) - (b.order ?? 0)) : [];
+                const first = media[0]?.image || "/project-placeholder.svg";
+                const second = (media[1]?.image || media[0]?.image) || "/project-placeholder.svg";
+                const single = media.length <= 1;
+                const card = (src: string, key: string) => (
+                  <div key={key} className="w-full">
+                    <button
+                      className="block w-full text-left group"
+                      onClick={() => navigate(`/projects/${currentProject.id}`, { state: { project: currentProject } })}
+                      aria-label={`Open ${currentProject.title}`}
+                    >
+                      <div className="relative w-full h-[371px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300">
+                        <img
+                          src={addCacheBuster(src)}
+                          alt={currentProject.title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={(e) => {
+                            const img = e.currentTarget as HTMLImageElement;
+                            if (img.src.includes("project-placeholder.svg")) return;
+                            img.onerror = null;
+                            img.src = "/project-placeholder.svg";
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/36 to-black/50 opacity-60" />
+                      </div>
+                    </button>
+                  </div>
+                );
+
+                return single ? (
+                  <div className="flex justify-center">
+                    <div className="w-full lg:w-[633px]">{card(first, 'single')}</div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {card(first, 'first')}
+                    {card(second, 'second')}
+                  </div>
+                );
+              })() : null
             )}
           </div>
 
@@ -144,32 +165,29 @@ export default function ProjectsCarousel() {
                   key={index}
                   onClick={() => goToPage(index)}
                   className={`rounded-full transition-all duration-200 ${
-                    index === currentPage 
-                      ? 'w-[60px] h-4 bg-orange' 
+                    index === currentPage
+                      ? 'w-[60px] h-4 bg-orange'
                       : 'w-4 h-4 bg-gray-border hover:bg-gray-light'
                   }`}
-                  aria-label={`Go to page ${index + 1}`}
+                  aria-label={`Go to project ${index + 1}`}
                 />
               ))}
             </div>
           )}
 
-          {/* Category Filter Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3.5">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-8 py-4 rounded-[24px] font-inter text-xl font-normal transition-colors ${
-                  selectedCategory === category
-                    ? 'bg-orange text-white'
-                    : 'bg-gray-bg text-black hover:bg-gray-border'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+          {/* Project Skills Chips */}
+          {currentProject && (()=>{
+            const skills = parseSkills(currentProject.skills_list);
+            return skills.length > 0 ? (
+              <div className="flex flex-wrap items-center justify-center gap-3.5">
+                {skills.slice(0, 12).map((s, i) => (
+                  <span key={`${s}-${i}`} className="px-8 py-4 rounded-[24px] bg-gray-bg text-black font-inter text-xl border border-gray-border">
+                    {s}
+                  </span>
+                ))}
+              </div>
+            ) : null;
+          })()}
 
           {/* Featured Project Section */}
           {featuredProject && (
@@ -190,7 +208,12 @@ export default function ProjectsCarousel() {
               
               <div className="w-full text-center">
                 <p className="font-lufga text-xl text-gray-text leading-normal tracking-tight">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed congue interdum ligula a dignissim. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed lobortis orci elementum egestas lobortis.
+                  {(() => {
+                    const html = String(featuredProject.description || "");
+                    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+                    const limit = 220;
+                    return text.length > limit ? text.slice(0, limit - 1) + "…" : text;
+                  })()}
                 </p>
               </div>
             </div>
