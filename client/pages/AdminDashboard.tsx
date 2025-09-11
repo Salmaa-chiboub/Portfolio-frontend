@@ -227,11 +227,25 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
         <RichTextTextarea 
           placeholder="Description" 
           value={description} 
-          onChange={(v) => v.length <= 9000 && setDescription(v)} 
+          onChange={(v) => {
+            // Only update if visible text is under 9000 chars
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = v.replace(/<[^>]*>/g, ''); // Remove HTML tags
+            const visibleText = tempDiv.textContent || '';
+            if (visibleText.length <= 9000) {
+              setDescription(v);
+            }
+          }} 
           rows={6} 
         />
         <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded">
-          {description.length}/9000
+          {(() => {
+            // Count only visible characters (without HTML tags)
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = description.replace(/<[^>]*>/g, '');
+            const visibleText = tempDiv.textContent || '';
+            return `${visibleText.length}/9000`;
+          })()}
         </div>
       </div>
 
@@ -874,11 +888,25 @@ export function BlogForm({ onDone, initial, postId, onCancel }: { onDone: () => 
         <RichTextTextarea 
           placeholder="Content" 
           value={content} 
-          onChange={(v) => v.length <= 9000 && setContent(v)} 
+          onChange={(v) => {
+            // Only update if visible text is under 9000 chars
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = v.replace(/<[^>]*>/g, ''); // Remove HTML tags
+            const visibleText = tempDiv.textContent || '';
+            if (visibleText.length <= 9000) {
+              setContent(v);
+            }
+          }} 
           rows={8} 
         />
         <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded">
-          {content.length}/9000
+          {(() => {
+            // Count only visible characters (without HTML tags)
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content.replace(/<[^>]*>/g, '');
+            const visibleText = tempDiv.textContent || '';
+            return `${visibleText.length}/9000`;
+          })()}
         </div>
       </div>
 
