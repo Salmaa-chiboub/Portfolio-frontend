@@ -223,7 +223,17 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
         <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} disabled={current} />
       </div>
       <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={current} onChange={(e) => setCurrent(e.target.checked)} /> Current</label>
-      <RichTextTextarea placeholder="Description" value={description} onChange={(v) => setDescription(v)} rows={6} />
+      <div className="relative">
+        <RichTextTextarea 
+          placeholder="Description" 
+          value={description} 
+          onChange={(v) => v.length <= 9000 && setDescription(v)} 
+          rows={6} 
+        />
+        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded">
+          {description.length}/9000
+        </div>
+      </div>
 
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -860,7 +870,17 @@ export function BlogForm({ onDone, initial, postId, onCancel }: { onDone: () => 
   return (
     <form onSubmit={submit} className="space-y-4">
       <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-      <RichTextTextarea placeholder="Content" value={content} onChange={(v) => setContent(v)} rows={8} />
+      <div className="relative">
+        <RichTextTextarea 
+          placeholder="Content" 
+          value={content} 
+          onChange={(v) => v.length <= 9000 && setContent(v)} 
+          rows={8} 
+        />
+        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded">
+          {content.length}/9000
+        </div>
+      </div>
 
       <div>
         <label className="font-lufga text-sm">Images (max {MAX_BLOG_IMAGES})</label>
