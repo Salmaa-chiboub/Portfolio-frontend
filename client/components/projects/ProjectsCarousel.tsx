@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Github, ExternalLink, ArrowUpRight } from "lucide-react";
+import { Github, ExternalLink, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 type ProjectMedia = { id: number; image: string; order: number };
 
@@ -107,25 +107,40 @@ export default function ProjectsCarousel() {
           {/* Main Projects Grid */}
           <div className="w-full max-w-[1290px]">
             {loading ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {[1, 2].map((i) => (
-                  <div key={i} className="w-full h-[371px] bg-gray-bg animate-pulse rounded-[20px]" />
-                ))}
+              <div className="flex justify-center">
+                <div className="w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] bg-gray-bg animate-pulse rounded-[20px]" />
               </div>
             ) : (
               currentProject ? (() => {
                 const media = Array.isArray(currentProject.media) ? [...currentProject.media].sort((a,b)=> (a.order ?? 0) - (b.order ?? 0)) : [];
-                const first = media[0]?.image || "/project-placeholder.svg";
-                const second = (media[1]?.image || media[0]?.image) || "/project-placeholder.svg";
-                const single = media.length <= 1;
-                const card = (src: string, key: string) => (
-                  <div key={key} className="w-full">
+                const src = media[0]?.image || "/project-placeholder.svg";
+                return (
+                  <div className="relative w-full flex items-center justify-center">
+                    {totalPages > 1 && (
+                      <>
+                        <button
+                          onClick={prevPage}
+                          aria-label="Previous project"
+                          className="absolute left-0 sm:left-6 md:left-10 xl:left-12 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-gray-border shadow hover:bg-gray-bg transition-colors flex items-center justify-center"
+                        >
+                          <ChevronLeft className="w-6 h-6 text-gray-text" />
+                        </button>
+                        <button
+                          onClick={nextPage}
+                          aria-label="Next project"
+                          className="absolute right-0 sm:right-6 md:right-10 xl:right-12 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-gray-border shadow hover:bg-gray-bg transition-colors flex items-center justify-center"
+                        >
+                          <ChevronRight className="w-6 h-6 text-gray-text" />
+                        </button>
+                      </>
+                    )}
+
                     <button
                       className="block w-full text-left group"
                       onClick={() => navigate(`/projects/${currentProject.id}`, { state: { project: currentProject } })}
                       aria-label={`Open ${currentProject.title}`}
                     >
-                      <div className="relative w-full h-[371px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300">
+                      <div className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300">
                         <img
                           src={addCacheBuster(src)}
                           alt={currentProject.title}
@@ -140,17 +155,6 @@ export default function ProjectsCarousel() {
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/36 to-black/50 opacity-60" />
                       </div>
                     </button>
-                  </div>
-                );
-
-                return single ? (
-                  <div className="flex justify-center">
-                    <div className="w-full lg:w-[633px]">{card(first, 'single')}</div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {card(first, 'first')}
-                    {card(second, 'second')}
                   </div>
                 );
               })() : null
