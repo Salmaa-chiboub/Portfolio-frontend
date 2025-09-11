@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Github, ExternalLink } from "lucide-react";
+import { Github, ExternalLink } from "lucide-react";
 import { getApiUrl } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
@@ -148,6 +148,29 @@ export default function ProjectDetail() {
     setActiveIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
   };
 
+  // Swipe/drag support
+  const dragRef = (function() {
+    return { current: { active: false, startX: 0, triggered: false } } as React.MutableRefObject<{ active: boolean; startX: number; triggered: boolean }>;
+  })();
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    dragRef.current.active = true;
+    dragRef.current.startX = e.clientX;
+    dragRef.current.triggered = false;
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const threshold = 50;
+    if (!dragRef.current.triggered && Math.abs(dx) > threshold) {
+      if (dx < 0) goToNext(); else goToPrevious();
+      dragRef.current.triggered = true;
+    }
+  };
+  const onPointerUp = () => {
+    dragRef.current.active = false;
+    dragRef.current.triggered = false;
+  };
+
   // Other projects
   const [otherProjects, setOtherProjects] = useState<Project[]>([]);
   const [otherLoading, setOtherLoading] = useState(false);
@@ -221,7 +244,7 @@ export default function ProjectDetail() {
             {/* Images Section */}
             <div className="space-y-6">
               {/* Main image container - 70% width, centered */}
-              <div className="relative mx-auto w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%]">
+              <div className="relative mx-auto w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%] touch-pan-y" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} style={{ touchAction: 'pan-y' }}>
                 <div className="rounded-3xl overflow-hidden">
                   <motion.img
                     key={mainImage}
@@ -243,25 +266,6 @@ export default function ProjectDetail() {
                   />
                 </div>
 
-                {/* Navigation buttons positioned further outside the image container */}
-                {hasMultipleImages && (
-                  <>
-                    <button
-                      onClick={goToPrevious}
-                      className="absolute left-4 lg:-left-20 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/95 hover:bg-white border border-gray-border rounded-full flex items-center justify-center shadow-lg transition-colors z-50"
-                      aria-label="Previous image"
-                    >
-                      <ChevronLeft className="w-5 h-5 text-gray-text" />
-                    </button>
-                    <button
-                      onClick={goToNext}
-                      className="absolute right-4 lg:-right-20 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/95 hover:bg-white border border-gray-border rounded-full flex items-center justify-center shadow-lg transition-colors z-50"
-                      aria-label="Next image"
-                    >
-                      <ChevronRight className="w-5 h-5 text-gray-text" />
-                    </button>
-                  </>
-                )}
               </div>
 
               {/* Pagination dots - Figma design */}

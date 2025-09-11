@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Github, ExternalLink } from "lucide-react";
+import { Github, ExternalLink } from "lucide-react";
 import { getApiUrl } from "@/lib/config";
 import { stripHtml, cn } from "@/lib/utils";
 import { useBlogs } from "@/hooks/use-api";
@@ -78,6 +78,16 @@ export default function BlogDetail({ slugParam }: { slugParam?: string } = {}) {
 
   const heroImg = useMemo(() => (blog?.images && blog.images[activeIndex]?.image) || (blog?.images && blog.images[0]?.image) || "/project-placeholder.svg", [blog, activeIndex]);
 
+  // Swipe/drag support
+  const dragRef = (function() {
+    return { current: { active: false, startX: 0, triggered: false } } as React.MutableRefObject<{ active: boolean; startX: number; triggered: boolean }>;
+  })();
+  const goPrev = () => setActiveIndex((p) => (blog && blog.images && blog.images.length ? (p === 0 ? blog.images.length - 1 : p - 1) : 0));
+  const goNext = () => setActiveIndex((p) => (blog && blog.images && blog.images.length ? (p === (blog.images.length - 1) ? 0 : p + 1) : 0));
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => { dragRef.current.active = true; dragRef.current.startX = e.clientX; dragRef.current.triggered = false; };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => { if (!dragRef.current.active) return; const dx = e.clientX - dragRef.current.startX; const threshold = 50; if (!dragRef.current.triggered && Math.abs(dx) > threshold) { if (dx < 0) goNext(); else goPrev(); dragRef.current.triggered = true; } };
+  const onPointerUp = () => { dragRef.current.active = false; dragRef.current.triggered = false; };
+
   if (loading) return null;
   if (!blog) return (
     <section className="py-16 lg:py-24 bg-white">
@@ -116,7 +126,7 @@ export default function BlogDetail({ slugParam }: { slugParam?: string } = {}) {
         <div className="space-y-8">
           {/* Images Section */}
           <div className="space-y-6">
-            <div className="relative mx-auto w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%]">
+            <div className="relative mx-auto w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%] touch-pan-y" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} style={{ touchAction: 'pan-y' }}>
               <div className="rounded-3xl overflow-hidden">
                 <motion.img
                   key={heroImg}
@@ -138,12 +148,6 @@ export default function BlogDetail({ slugParam }: { slugParam?: string } = {}) {
                 />
               </div>
 
-              {blog.images && blog.images.length > 1 && (
-                <>
-                  <button onClick={() => setActiveIndex((p) => (p === 0 ? blog.images!.length - 1 : p - 1))} className="absolute left-4 lg:-left-20 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/95 hover:bg-white border border-gray-border rounded-full flex items-center justify-center shadow-lg transition-colors z-50"><ChevronLeft className="w-5 h-5 text-gray-text" /></button>
-                  <button onClick={() => setActiveIndex((p) => (p === blog.images!.length - 1 ? 0 : p + 1))} className="absolute right-4 lg:-right-20 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/95 hover:bg-white border border-gray-border rounded-full flex items-center justify-center shadow-lg transition-colors z-50"><ChevronRight className="w-5 h-5 text-gray-text" /></button>
-                </>
-              )}
 
               {/* Pagination dots */}
               {blog.images && blog.images.length > 1 && (
