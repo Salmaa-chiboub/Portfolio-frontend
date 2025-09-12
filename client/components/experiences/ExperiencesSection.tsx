@@ -391,18 +391,39 @@ function TimelineRowBase({
                   </div>
                 </header>
 
-                <p className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed whitespace-pre-wrap mb-3">
-                  {expanded ? exp.description : truncate(exp.description, 220)}
-                </p>
-                {exp.description && exp.description.length > 220 && (
-                  <button
-                    onClick={() => setExpanded()}
-                    className="text-orange font-lufga text-sm lg:text-base mb-3"
-                    aria-expanded={!!expanded}
-                  >
-                    {expanded ? "Show less" : "Read more"}
-                  </button>
-                )}
+                {(() => {
+                  const raw = String(exp.description || "");
+                  const hasHtml = raw.includes("<");
+                  const excerpt = (() => {
+                    if (!expanded) {
+                      const plain = hasHtml ? raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : raw;
+                      return truncate(plain, 220);
+                    }
+                    return null;
+                  })();
+                  return expanded ? (
+                    hasHtml ? (
+                      <div className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: raw }} />
+                    ) : (
+                      <p className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed whitespace-pre-wrap mb-3">{raw}</p>
+                    )
+                  ) : (
+                    <p className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed mb-3">{excerpt}</p>
+                  );
+                })()}
+                {(() => {
+                  const raw = String(exp.description || "");
+                  const plain = raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+                  return plain.length > 220 ? (
+                    <button
+                      onClick={() => setExpanded()}
+                      className="text-orange font-lufga text-sm lg:text-base mb-3"
+                      aria-expanded={!!expanded}
+                    >
+                      {expanded ? "Show less" : "Read more"}
+                    </button>
+                  ) : null;
+                })()}
 
                 {skills.length > 0 && (
                   <ul className="flex flex-wrap gap-2">
@@ -454,18 +475,39 @@ function TimelineRowBase({
                   </div>
                 </header>
 
-                <p className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed whitespace-pre-wrap mb-3">
-                  {expanded ? exp.description : truncate(exp.description, 220)}
-                </p>
-                {exp.description && exp.description.length > 220 && (
-                  <button
-                    onClick={() => setExpanded()}
-                    className="text-orange font-lufga text-sm lg:text-base mb-3"
-                    aria-expanded={!!expanded}
-                  >
-                    {expanded ? "Show less" : "Read more"}
-                  </button>
-                )}
+                {(() => {
+                  const raw = String(exp.description || "");
+                  const hasHtml = raw.includes("<");
+                  const excerpt = (() => {
+                    if (!expanded) {
+                      const plain = hasHtml ? raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : raw;
+                      return truncate(plain, 220);
+                    }
+                    return null;
+                  })();
+                  return expanded ? (
+                    hasHtml ? (
+                      <div className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: raw }} />
+                    ) : (
+                      <p className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed whitespace-pre-wrap mb-3">{raw}</p>
+                    )
+                  ) : (
+                    <p className="text-gray-text font-lufga text-base lg:text-lg leading-relaxed mb-3">{excerpt}</p>
+                  );
+                })()}
+                {(() => {
+                  const raw = String(exp.description || "");
+                  const plain = raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+                  return plain.length > 220 ? (
+                    <button
+                      onClick={() => setExpanded()}
+                      className="text-orange font-lufga text-sm lg:text-base mb-3"
+                      aria-expanded={!!expanded}
+                    >
+                      {expanded ? "Show less" : "Read more"}
+                    </button>
+                  ) : null;
+                })()}
 
                 {skills.length > 0 && (
                   <ul className="flex flex-wrap gap-2">

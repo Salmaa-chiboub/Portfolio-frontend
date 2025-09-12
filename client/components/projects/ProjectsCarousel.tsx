@@ -57,6 +57,9 @@ function parseSkills(list?: unknown): string[] {
 export default function ProjectsCarousel() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(1);
+  const [activeMedia, setActiveMedia] = useState<Record<number, number>>({});
+  const touchByProjectRef = useRef<Record<number, { startX: number | null; time: number }>>({});
 
   const navigate = useNavigate();
 
@@ -88,17 +91,11 @@ export default function ProjectsCarousel() {
   const filteredProjects = projects;
 
   const totalPages = filteredProjects.length;
-  const currentProject = filteredProjects.length > 0 ? filteredProjects[Math.min(currentPage, filteredProjects.length - 1)] : null;
+  const visibleProjects = filteredProjects.slice(0, Math.max(1, Math.min(visibleCount, filteredProjects.length)));
 
-  // Featured project (last project)
-  const featuredProject = projects.length > 0 ? projects[projects.length - 1] : null;
-
-  const goToPage = (page: number) => {
-    setCurrentPage(Math.max(0, Math.min(page, Math.max(0, totalPages - 1))));
-  };
-
-  const nextPage = () => goToPage(currentPage + 1);
-  const prevPage = () => goToPage(currentPage - 1);
+  const goToPage = (_page: number) => {};
+  const nextPage = () => setVisibleCount((v) => Math.min(filteredProjects.length, v + 1));
+  const prevPage = () => setVisibleCount((v) => Math.max(1, v - 1));
 
   if (!loading && (error || filteredProjects.length === 0)) return null;
 
@@ -120,48 +117,49 @@ export default function ProjectsCarousel() {
           </button>
         </div>
 
-        {/* Projects Grid */}
+        {/* Projects Stack */}
         <div className="flex flex-col items-center gap-12">
-          {/* Main Projects Grid */}
-          <div className="w-full max-w-[1290px]">
+          <div className="w-full max-w-[1290px] space-y-12">
             {loading ? (
               <div className="flex justify-center">
                 <div className="w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] bg-gray-bg animate-pulse rounded-[20px]" />
               </div>
             ) : (
-              currentProject ? (() => {
-                const media = Array.isArray(currentProject.media) ? [...currentProject.media].sort((a,b)=> (a.order ?? 0) - (b.order ?? 0)) : [];
-                const src = media[0]?.image || "/project-placeholder.svg";
+              visibleProjects.map((p) => {
+                const media = Array.isArray(p.media) ? [...p.media].sort((a,b)=> (a.order ?? 0) - (b.order ?? 0)) : [];
+                const idx = Math.min(Math.max(0, activeMedia[p.id] ?? 0), Math.max(0, media.length - 1));
+                const src = media[idx]?.image || media[0]?.image || "/project-placeholder.svg";
+                const skills = parseSkills(p.skills_list);
+                const text = String(p.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+                const excerpt = text.length > 220 ? text.slice(0, 219) + "…" : text;
                 return (
-                  <div className="relative w-full flex items-center justify-center">
-                    {totalPages > 1 && (
-                      <>
-                        <button
-                          onClick={prevPage}
-                          aria-label="Previous project"
-                          className="hidden sm:flex absolute left-0 sm:left-6 md:left-10 xl:left-12 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-gray-border shadow hover:bg-gray-bg transition-colors items-center justify-center"
-                        >
-                          <ChevronLeft className="w-6 h-6 text-gray-text" />
-                        </button>
-                        <button
-                          onClick={nextPage}
-                          aria-label="Next project"
-                          className="hidden sm:flex absolute right-0 sm:right-6 md:right-10 xl:right-12 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-gray-border shadow hover:bg-gray-bg transition-colors items-center justify-center"
-                        >
-                          <ChevronRight className="w-6 h-6 text-gray-text" />
-                        </button>
-                      </>
-                    )}
-
+                  <div key={p.id} className="flex flex-col items-center gap-6">
                     <button
                       className="block w-full text-left group"
-                      onClick={() => navigate(`/projects/${currentProject.id}`, { state: { project: currentProject } })}
-                      aria-label={`Open ${currentProject.title}`}
+                      onClick={() => navigate(`/projects/${p.id}`, { state: { project: p } })}
+                      aria-label={`Open ${p.title}`}
                     >
-                      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300">
+                      <div
+                        className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300"
+                        onTouchStart={(e) => { touchByProjectRef.current[p.id] = { startX: e.touches[0]?.clientX ?? null, time: Date.now() }; }}
+                        onTouchEnd={(e) => {
+                          const info = touchByProjectRef.current[p.id];
+                          if (!info || info.startX == null) return;
+                          const dx = (e.changedTouches[0]?.clientX ?? 0) - info.startX;
+                          const dt = Date.now() - info.time;
+                          const threshold = 40;
+                          if (Math.abs(dx) > threshold && dt < 800 && media.length > 1) {
+                            setActiveMedia((prev) => {
+                              const cur = Math.min(Math.max(0, prev[p.id] ?? 0), Math.max(0, media.length - 1));
+                              const next = dx < 0 ? Math.min(media.length - 1, cur + 1) : Math.max(0, cur - 1);
+                              return { ...prev, [p.id]: next };
+                            });
+                          }
+                        }}
+                      >
                         <img
                           src={addCacheBuster(src)}
-                          alt={currentProject.title}
+                          alt={p.title}
                           className="absolute inset-0 w-full h-full object-cover"
                           onError={(e) => {
                             const img = e.currentTarget as HTMLImageElement;
@@ -173,71 +171,62 @@ export default function ProjectsCarousel() {
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/36 to-black/50 opacity-60" />
                       </div>
                     </button>
+
+                    {media.length > 1 && (
+                      <div className="flex items-center gap-3 mt-3">
+                        {media.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setActiveMedia((prev) => ({ ...prev, [p.id]: i }))}
+                            className={`rounded-full transition-all duration-200 ${i === idx ? 'w-[60px] h-4 bg-orange' : 'w-4 h-4 bg-gray-border hover:bg-gray-light'}`}
+                            aria-label={`Go to image ${i + 1} of project ${p.title}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {skills.length > 0 && (
+                      <div className="flex flex-wrap items-center justify-center gap-3.5">
+                        {skills.slice(0, 12).map((s: string, i: number) => (
+                          <span key={`${s}-${i}`} className="px-8 py-4 rounded-[24px] bg-gray-bg text-black font-inter text-xl border border-gray-border">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="w-full max-w-[860px] flex flex-col items-center gap-4">
+                      <div className="flex items-end gap-4.5">
+                        <h3 className="font-lufga font-bold text-3xl sm:text-4xl lg:text-5xl text-gray-text leading-tight tracking-tight">
+                          {p.title}
+                        </h3>
+                        <button
+                          onClick={() => navigate(`/projects/${p.id}`, { state: { project: p } })}
+                          className="flex items-center justify-center w-[58px] h-[58px] bg-orange rounded-full border-2 border-orange hover:bg-orange/90 transition-colors transform -rotate-90"
+                          aria-label={`View ${p.title} project`}
+                        >
+                          <ArrowUpRight className="w-8 h-8 text-white" strokeWidth={2} />
+                        </button>
+                      </div>
+                      <div className="w-full text-center">
+                        <p className="font-lufga text-xl text-gray-text leading-normal tracking-tight">{excerpt}</p>
+                      </div>
+                    </div>
                   </div>
                 );
-              })() : null
+              })
             )}
           </div>
 
-          {/* Pagination Dots */}
-          {totalPages > 1 && (
+          {/* See more / See less controls */}
+          {filteredProjects.length > 1 && (
             <div className="flex items-center gap-3">
-              {Array.from({ length: totalPages }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToPage(index)}
-                  className={`rounded-full transition-all duration-200 ${
-                    index === currentPage
-                      ? 'w-[60px] h-4 bg-orange'
-                      : 'w-4 h-4 bg-gray-border hover:bg-gray-light'
-                  }`}
-                  aria-label={`Go to project ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Project Skills Chips */}
-          {currentProject && (()=>{
-            const skills = parseSkills(currentProject.skills_list);
-            return skills.length > 0 ? (
-              <div className="flex flex-wrap items-center justify-center gap-3.5">
-                {skills.slice(0, 12).map((s, i) => (
-                  <span key={`${s}-${i}`} className="px-8 py-4 rounded-[24px] bg-gray-bg text-black font-inter text-xl border border-gray-border">
-                    {s}
-                  </span>
-                ))}
-              </div>
-            ) : null;
-          })()}
-
-          {/* Current Project Title & Excerpt (updates with navigation) */}
-          {currentProject && (
-            <div className="w-full max-w-[860px] flex flex-col items-center gap-6">
-              <div className="flex items-end gap-4.5">
-                <h3 className="font-lufga font-bold text-3xl sm:text-4xl lg:text-5xl text-gray-text leading-tight tracking-tight">
-                  {currentProject.title}
-                </h3>
-
-                <button
-                  onClick={() => navigate(`/projects/${currentProject.id}`, { state: { project: currentProject } })}
-                  className="flex items-center justify-center w-[58px] h-[58px] bg-orange rounded-full border-2 border-orange hover:bg-orange/90 transition-colors transform -rotate-90"
-                  aria-label={`View ${currentProject.title} project`}
-                >
-                  <ArrowUpRight className="w-8 h-8 text-white" strokeWidth={2} />
-                </button>
-              </div>
-
-              <div className="w-full text-center">
-                <p className="font-lufga text-xl text-gray-text leading-normal tracking-tight">
-                  {(() => {
-                    const html = String(currentProject.description || "");
-                    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-                    const limit = 220;
-                    return text.length > limit ? text.slice(0, limit - 1) + "…" : text;
-                  })()}
-                </p>
-              </div>
+              {visibleProjects.length > 1 && (
+                <button onClick={() => setVisibleCount(1)} className="px-6 py-3 rounded-full border border-gray-border bg-white text-gray-text hover:bg-gray-bg font-lufga">See less</button>
+              )}
+              {visibleProjects.length === 1 && visibleProjects.length < filteredProjects.length && (
+                <button onClick={() => setVisibleCount((v) => Math.min(filteredProjects.length, v + 1))} className="px-6 py-3 rounded-full bg-orange text-white hover:bg-orange/90 font-lufga">See more</button>
+              )}
             </div>
           )}
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Github, ExternalLink } from "lucide-react";
 import { getApiUrl } from "@/lib/config";
@@ -82,7 +82,8 @@ const splitTitle = (title: string) => {
 export default function ProjectDetail() {
   const params = useParams();
   const id = params.id as string | undefined;
-  const location = useLocation() as { state?: { project?: Project } };
+  const location = useLocation() as { state?: { project?: Project; fallbackPath?: string } };
+  const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(location.state?.project ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -225,12 +226,16 @@ export default function ProjectDetail() {
           )}
 
           <div>
-            <Link
-              to="/"
+            <button
+              onClick={() => {
+                const isAdmin = typeof window !== 'undefined' ? window.location.pathname.startsWith('/admin') : false;
+                const fallback = location.state?.fallbackPath || (isAdmin ? '/admin/projects' : '/');
+                if (window.history.length > 1) navigate(-1); else navigate(fallback, { replace: true });
+              }}
               className="inline-flex items-center px-6 py-3 rounded-full bg-orange text-white font-lufga font-semibold hover:bg-orange/90 transition-colors"
             >
               ← Back
-            </Link>
+            </button>
           </div>
         </div>
 
