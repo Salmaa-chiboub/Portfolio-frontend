@@ -16,6 +16,23 @@ import { isValidUrl } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { file } from "zod/v4";
 
+// Helpers to normalize various backend shapes to numeric skill IDs
+function extractId(value: any): number | null {
+  if (typeof value === 'number') return value;
+  if (value && typeof value === 'object') {
+    if (typeof value.id === 'number') return value.id;
+    const ref = (value as any).skill_reference;
+    if (typeof ref === 'number') return ref;
+    if (ref && typeof ref === 'object' && typeof ref.id === 'number') return ref.id;
+  }
+  return null;
+}
+function normalizeSkillIds(list: any): number[] {
+  const arr = Array.isArray(list) ? list : [];
+  const ids = arr.map(extractId).filter((x): x is number => typeof x === 'number');
+  return Array.from(new Set(ids));
+}
+
 export default function AdminDashboard() {
   return (
     <div className="relative min-h-screen bg-white text-dark">
@@ -48,7 +65,7 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
   const [end, setEnd] = useState(initial?.end_date || "");
   const [current, setCurrent] = useState(Boolean(initial?.is_current));
   const [description, setDescription] = useState(initial?.description || "");
-  const [selected, setSelected] = useState<number[]>(initial?.skills ? (Array.isArray(initial.skills) ? initial.skills.map((s: any) => s.skill_reference || s.id).filter(Boolean) : []) : (initial?.skills_list ? initial.skills_list.map((s: any) => s.id).filter(Boolean) : []));
+  const [selected, setSelected] = useState<number[]>(normalizeSkillIds(initial?.skills || initial?.skills_list || []));
   const [submitting, setSubmitting] = useState(false);
   const [skillQuery, setSkillQuery] = useState("");
   const [tzOpen, setTzOpen] = useState(false);
@@ -71,7 +88,7 @@ export function ExperienceForm({ skillRefs, loading, onDone, initial, experience
     setEnd(initial?.end_date || "");
     setCurrent(Boolean(initial?.is_current));
     setDescription(initial?.description || "");
-    setSelected(initial?.skills ? (Array.isArray(initial.skills) ? initial.skills.map((s: any) => s.skill_reference || s.id).filter(Boolean) : []) : (initial?.skills_list ? initial.skills_list.map((s: any) => s.id).filter(Boolean) : []));
+    setSelected(normalizeSkillIds(initial?.skills || initial?.skills_list || []));
     setLinks(initial?.links ? initial.links.map((l: any) => ({ id: l.id, url: l.url || "", text: l.text || (l.url || "") })) : []);
   }, [initial]);
 
@@ -350,7 +367,7 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
   // existing media fetched from initial
   const [existingMedia, setExistingMedia] = useState<{ id: number; image?: string | null }[]>(initial?.media ? initial.media.map((m: any) => ({ id: m.id, image: m.image })) : []);
 
-  const [selected, setSelected] = useState<number[]>(initial?.skills_list ? initial.skills_list.map((s: any) => s.skill_reference || s.id).filter(Boolean) : []);
+  const [selected, setSelected] = useState<number[]>(normalizeSkillIds(initial?.skills || initial?.skills_list || []));
   const [submitting, setSubmitting] = useState(false);
   const [skillQuery, setSkillQuery] = useState("");
   const [links, setLinks] = useState<{ id?: number; url: string; text: string }[]>([]);
@@ -367,7 +384,7 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
     // sync fields when initial changes
     setTitle(initial?.title || "");
     setDescription(initial?.description || "");
-    setSelected(initial?.skills_list ? initial.skills_list.map((s: any) => s.skill_reference || s.id).filter(Boolean) : []);
+    setSelected(normalizeSkillIds(initial?.skills || initial?.skills_list || []));
     setExistingMedia(initial?.media ? initial.media.map((m: any) => ({ id: m.id, image: m.image })) : []);
     setNewImages([]);
     setPreviews([]);
@@ -455,6 +472,26 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
 
   const toggle = (id: number) => setSelected((prev) => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
+  // Robust media deletion with fallback endpoints
+  const tryDeleteMedia = async (pid: number, mid: number): Promise<boolean> => {
+    const candidates = [
+      `/api/projects/${pid}/media/${mid}/`,
+      `/api/projects/${pid}/media/${mid}`,
+      `/api/project-media/${mid}/`,
+      `/api/media/${mid}/`,
+    ];
+    for (const path of candidates) {
+      try {
+        const res = await fetchWithAuth(getApiUrl(path), { method: 'DELETE' });
+        if (res.ok || res.status === 204) return true;
+        if (res.status === 404) continue;
+      } catch {
+        // ignore and try next
+      }
+    }
+    return false;
+  };
+
   const totalImages = existingMedia.length + newImages.length;
   const valid = title.trim().length >= 3 &&
                ((): boolean => { const el = document.createElement('div'); el.innerHTML = description; const len = (el.textContent || '').length; return len >= 10 && len <= MAX_DESCRIPTION_LENGTH; })() &&
@@ -471,13 +508,10 @@ export function ProjectForm({ skillRefs, loading, onDone, initial, projectId, on
     try {
       // if editing and there are deleted media ids, delete them first
       if (projectId && deletedMediaIds && deletedMediaIds.length > 0) {
-        for (const mId of deletedMediaIds) {
-          try {
-            const delUrl = getApiUrl(`/api/projects/${projectId}/media/${mId}/`);
-            await fetchWithAuth(delUrl, { method: 'DELETE' });
-          } catch (e) {
-            console.warn('Failed to delete media during submit', mId, e);
-          }
+        const uniqueIds = Array.from(new Set(deletedMediaIds));
+        for (const mId of uniqueIds) {
+          const ok = await tryDeleteMedia(Number(projectId), mId);
+          if (!ok) console.warn('Media delete failed on all endpoints', { projectId, mId });
         }
         setDeletedMediaIds([]);
       }

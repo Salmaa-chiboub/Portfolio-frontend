@@ -125,7 +125,7 @@ export default function ProjectsCarousel() {
                 <div className="w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] bg-gray-bg animate-pulse rounded-[20px]" />
               </div>
             ) : (
-              visibleProjects.map((p) => {
+              visibleProjects.map((p, i) => {
                 const media = Array.isArray(p.media) ? [...p.media].sort((a,b)=> (a.order ?? 0) - (b.order ?? 0)) : [];
                 const idx = Math.min(Math.max(0, activeMedia[p.id] ?? 0), Math.max(0, media.length - 1));
                 const src = media[idx]?.image || media[0]?.image || "/project-placeholder.svg";
@@ -133,7 +133,7 @@ export default function ProjectsCarousel() {
                 const text = String(p.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
                 const excerpt = text.length > 220 ? text.slice(0, 219) + "…" : text;
                 return (
-                  <div key={p.id} className="flex flex-col items-center gap-6">
+                  <div key={p.id} className="flex flex-col items-center gap-6 w-full">
                     <button
                       className="block w-full text-left group"
                       onClick={() => navigate(`/projects/${p.id}`, { state: { project: p } })}
@@ -212,6 +212,12 @@ export default function ProjectsCarousel() {
                         <p className="font-lufga text-xl text-gray-text leading-normal tracking-tight">{excerpt}</p>
                       </div>
                     </div>
+
+                    {i < visibleProjects.length - 1 && (
+                      <div className="w-full flex justify-center">
+                        <div className="w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-px bg-gray-border" />
+                      </div>
+                    )}
                   </div>
                 );
               })
@@ -225,7 +231,7 @@ export default function ProjectsCarousel() {
                 <button onClick={() => setVisibleCount(1)} className="px-6 py-3 rounded-full border border-gray-border bg-white text-gray-text hover:bg-gray-bg font-lufga">See less</button>
               )}
               {visibleProjects.length === 1 && visibleProjects.length < filteredProjects.length && (
-                <button onClick={() => setVisibleCount((v) => Math.min(filteredProjects.length, v + 1))} className="px-6 py-3 rounded-full bg-orange text-white hover:bg-orange/90 font-lufga">See more</button>
+                <button onClick={() => setVisibleCount((v) => Math.min(filteredProjects.length, v + 1))} className="px-6 py-3 rounded-full bg-orange text-white hover:bg-orange/90 font-lufga">See more projects</button>
               )}
             </div>
           )}
