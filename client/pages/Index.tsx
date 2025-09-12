@@ -1003,7 +1003,7 @@ export default function Index() {
                 <div className="relative z-10">
                   <motion.img
                     loading="eager"
-                    fetchpriority="high"
+                    fetchPriority="high"
                     decoding="async"
                     src={(hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.png")}
                     alt={hero?.headline || "Salma Chiboub - Product Designer"}
@@ -1731,7 +1731,7 @@ export default function Index() {
           {/* Footer bottom */}
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
             <p className="text-white font-lufga text-lg lg:text-xl text-center lg:text-left">
-              Copyright© 2023 Salma. All Rights Reserved.
+              Copyright© {new Date().getFullYear()} Salma. All Rights Reserved.
             </p>
             <p className="text-white font-lufga text-lg lg:text-xl text-center lg:text-right">
               User Terms & Conditions | Privacy Policy
