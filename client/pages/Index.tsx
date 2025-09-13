@@ -100,11 +100,20 @@ const BUILD_ID = typeof window !== "undefined" && (import.meta as any).hot ? Str
 const addCacheBuster = (u: string) => {
   try {
     const url = new URL(u, window.location.origin);
-    url.searchParams.set("v", BUILD_ID);
-    return url.toString();
+    // Only append cache buster for same-origin or root-relative assets
+    const sameOrigin = url.origin === window.location.origin;
+    if (sameOrigin) {
+      url.searchParams.set("v", BUILD_ID);
+      return url.toString();
+    }
+    return u; // do not mutate external URLs (avoid breaking signed URLs/CORS)
   } catch {
-    const sep = u.includes("?") ? "&" : "?";
-    return `${u}${sep}v=${BUILD_ID}`;
+    const isRootRelative = u.startsWith("/");
+    if (isRootRelative) {
+      const sep = u.includes("?") ? "&" : "?";
+      return `${u}${sep}v=${BUILD_ID}`;
+    }
+    return u;
   }
 };
 
@@ -1012,35 +1021,64 @@ export default function Index() {
                 <div className="relative z-10">
                   <div className="relative w-full max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg">
                     <div className="relative aspect-[4/5]">
-                      <picture>
-                        <source
-                          type="image/avif"
-                          srcSet={useNImages
-                            ? makeSrcSet((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.avif"), [280, 400, 512, 640, 768], "avif")
-                            : ((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.avif"))}
-                          sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
-                        />
-                        <source
-                          type="image/webp"
-                          srcSet={useNImages
-                            ? makeSrcSet((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.avif"), [280, 400, 512, 640, 768], "webp")
-                            : undefined}
-                          sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
-                        />
+                      {(hero && hero.image && hero.image.trim() !== "") ? (
+                        <picture>
+                          <source
+                            type="image/avif"
+                            srcSet={useNImages
+                              ? makeSrcSet(addCacheBuster(hero.image), [280, 400, 512, 640, 768], "avif")
+                              : addCacheBuster(hero.image)}
+                            sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                          />
+                          <source
+                            type="image/webp"
+                            srcSet={useNImages ? makeSrcSet(addCacheBuster(hero.image), [280, 400, 512, 640, 768], "webp") : undefined}
+                            sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                          />
+                          <motion.img
+                            loading="eager"
+                            fetchPriority="high"
+                            decoding="async"
+                            src={addCacheBuster(hero.image)}
+                            alt={hero?.headline || "Salma Chiboub - Product Designer"}
+                            className="absolute inset-0 w-full h-full object-cover rounded-none"
+                            sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                            onError={(e) => {
+                              const img = e.currentTarget as HTMLImageElement;
+                              if (!img.dataset.fallback) {
+                                img.dataset.fallback = "1";
+                                img.src = "/caracter.png";
+                              }
+                            }}
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: false, amount: 0.4 }}
+                            transition={{ duration: 0.9, ease: "easeOut" }}
+                          />
+                        </picture>
+                      ) : (
                         <motion.img
                           loading="eager"
                           fetchPriority="high"
                           decoding="async"
-                          src={(hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.avif")}
+                          src={addCacheBuster("/caracter.png")}
                           alt={hero?.headline || "Salma Chiboub - Product Designer"}
                           className="absolute inset-0 w-full h-full object-cover rounded-none"
                           sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                          onError={(e) => {
+                            // ensure we always show something
+                            const img = e.currentTarget as HTMLImageElement;
+                            if (!img.dataset.fallback) {
+                              img.dataset.fallback = "1";
+                              img.src = "/caracter.png"; // plain path without cache buster
+                            }
+                          }}
                           initial={{ opacity: 0, scale: 0.98 }}
                           whileInView={{ opacity: 1, scale: 1 }}
                           viewport={{ once: false, amount: 0.4 }}
                           transition={{ duration: 0.9, ease: "easeOut" }}
                         />
-                      </picture>
+                      )}
                     </div>
                   </div>
                 </div>
