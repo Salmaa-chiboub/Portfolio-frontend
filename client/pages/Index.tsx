@@ -191,9 +191,12 @@ export default function Index() {
   const [useNImages, setUseNImages] = useState(netlifyImagesEnabled());
   useEffect(() => {
     let mounted = true;
-    pingNetlifyImages().then((ok) => {
-      if (mounted) setUseNImages(ok);
-    });
+    const run = () => pingNetlifyImages().then((ok) => { if (mounted) setUseNImages(ok); });
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(run, { timeout: 3000 });
+    } else {
+      setTimeout(run, 3000);
+    }
     return () => { mounted = false; };
   }, []);
 
@@ -1343,6 +1346,14 @@ export default function Index() {
 
       {/* Experiences Section */}
   <div ref={experiencesRef}>
+    <div className="lg:hidden container mx-auto max-w-7xl px-4 mt-12">
+      <div className="text-center mb-8">
+        <h2 className="text-4xl sm:text-5xl md:text-6xl font-lufga font-semibold leading-tight tracking-tight">
+          <span className="text-gray-text">Professional </span>
+          <span className="text-orange">Experiences</span>
+        </h2>
+      </div>
+    </div>
     <Suspense fallback={null}>
       <ExperiencesSectionLazy />
     </Suspense>

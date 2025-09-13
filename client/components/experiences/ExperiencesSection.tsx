@@ -190,13 +190,13 @@ export default function ExperiencesSection() {
     <>
       <section id="resume" className="relative z-20 py-12 lg:py-16 bg-background">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.9, ease: "easeOut" }} className="container mx-auto max-w-7xl px-4">
-            <div className="text-center mb-12 lg:mb-16">
+            <div className="hidden lg:block text-center mb-12 lg:mb-16">
               <motion.h2
                 initial={lowPerf ? undefined : { opacity: 0, y: 16 }}
                 whileInView={lowPerf ? undefined : { opacity: 1, y: 0 }}
                 viewport={lowPerf ? undefined : { once: true, amount: 0.5 }}
                 transition={lowPerf ? undefined : { duration: 1.0, ease: "easeOut" }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-lufga font-medium"
+                className="text-4xl sm:text-5xl lg:text-6xl font-lufga font-semibold leading-tight tracking-tight"
               >
                 <span className="text-gray-text">Professional </span>
                 <span className="text-orange">Experiences</span>
