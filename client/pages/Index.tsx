@@ -11,8 +11,6 @@ import { useQuery } from "@tanstack/react-query";
 const ExperiencesSectionLazy = lazy(() => import("@/components/experiences/ExperiencesSection"));
 const ProjectsCarouselLazy = lazy(() => import("@/components/projects/ProjectsCarousel"));
 import {
-  ChevronLeft,
-  ChevronRight,
   Star,
   Quote,
   Send,
@@ -418,10 +416,10 @@ export default function Index() {
       if (w >= 1024) rows = 3; // increase rows on desktop
 
       // Compute a consistent minimum height for the grid based on breakpoint styles
-      let itemH = 64; // h-16 -> 4rem
-      if (w >= 1024) itemH = 112; // lg:h-28 -> 7rem
-      else if (w >= 768) itemH = 96; // md:h-24 -> 6rem
-      else if (w >= 640) itemH = 80; // sm:h-20 -> 5rem
+      let itemH = 96; // base h-24 = 6rem
+      if (w >= 1024) itemH = 144; // lg:h-36 = 9rem
+      else if (w >= 768) itemH = 128; // md:h-32 = 8rem
+      else if (w >= 640) itemH = 112; // sm:h-28 = 7rem
 
       let gap = 8; // gap-2 -> 0.5rem
       if (w >= 1280) gap = 24; // xl:gap-6 -> 1.5rem
@@ -570,11 +568,11 @@ export default function Index() {
       else cols = 2; // base
 
       // determine item height in px based on tailwind classes (h-16, sm:h-20, md:h-24, lg:h-28)
-      let itemH = 64; // h-16 = 4rem = 64px
-      if (w >= 1024) itemH = 112; // lg:h-28 = 7rem
-      else if (w >= 768) itemH = 96; // md:h-24 = 6rem
-      else if (w >= 640) itemH = 80; // sm:h-20 = 5rem
-      else itemH = 64;
+      let itemH = 96; // base h-24 = 6rem
+      if (w >= 1024) itemH = 144; // lg:h-36 = 9rem
+      else if (w >= 768) itemH = 128; // md:h-32 = 8rem
+      else if (w >= 640) itemH = 112; // sm:h-28 = 7rem
+      else itemH = 96;
 
       // gap sizes in px for gap-2..gap-6
       let gap = 8;
@@ -1298,19 +1296,7 @@ export default function Index() {
               </div>
 
               <div className="px-2 sm:px-4 md:px-6 lg:px-10 xl:px-14">
-                <div className="grid grid-cols-[auto,1fr,auto] items-center gap-2 sm:gap-3 md:gap-4">
-                  <div className="flex justify-start">
-                    {totalSkillPages > 1 && (
-                      <button
-                        onClick={goPrevSkillsPage}
-                        aria-label="Previous skills page"
-                        className="w-10 h-10 lg:w-12 lg:h-12 bg-white/10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/20 disabled:opacity-40 disabled:pointer-events-none"
-                        disabled={skillsPage === 0}
-                      >
-                        <ChevronLeft className="w-6 h-6 text-white" />
-                      </button>
-                    )}
-                  </div>
+                <div className="items-center">
                   <div style={{ minHeight: skillsGridMinH }} ref={skillsWheelRef} className="relative mb-6">
                     <AnimatePresence initial={false} mode="wait" custom={pageDirRef.current}>
                       <motion.div
@@ -1321,7 +1307,7 @@ export default function Index() {
                         animate="center"
                         exit="exit"
                         transition={{ type: "spring", stiffness: 260, damping: 30, mass: 0.8 }}
-                        className="absolute inset-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6"
+                        className="absolute inset-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6 xl:gap-8"
                         style={{ willChange: "transform" }}
                         onTouchStart={handleSkillsTouchStart}
                         onTouchMove={handleSkillsTouchMove}
@@ -1330,15 +1316,15 @@ export default function Index() {
                         {!skillsLoading &&
                           paginatedSkills.map((item) => (
                             <div key={item.id} className="relative group">
-                              <div className="relative bg-gray-400/20 backdrop-blur-lg border border-white/20 rounded-3xl p-1 sm:p-1.5 md:p-2 h-16 sm:h-20 md:h-24 lg:h-28 flex flex-col items-center justify-center text-center">
+                              <div className="relative bg-gray-400/20 backdrop-blur-lg border border-white/20 rounded-3xl p-2 sm:p-2.5 md:p-3 h-24 sm:h-28 md:h-32 lg:h-36 flex flex-col items-center justify-center text-center">
                                 <img
                                   loading="lazy"
                                   decoding="async"
                                   src={item.reference.icon}
                                   alt={item.reference.name}
-                                  className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 object-contain mb-1 sm:mb-2 transition-opacity duration-700"
+                                  className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 object-contain mb-2 sm:mb-3 transition-opacity duration-700"
                                 />
-                                <h3 className="text-white font-lufga text-xs sm:text-sm md:text-base font-medium truncate w-full">
+                                <h3 className="text-white font-lufga text-sm sm:text-base md:text-lg font-medium truncate w-full">
                                   {item.reference.name}
                                 </h3>
                               </div>
@@ -1347,36 +1333,9 @@ export default function Index() {
                       </motion.div>
                     </AnimatePresence>
                   </div>
-                  <div className="flex justify-end">
-                    {totalSkillPages > 1 && (
-                      <button
-                        onClick={goNextSkillsPage}
-                        aria-label="Next skills page"
-                        className="w-10 h-10 lg:w-12 lg:h-12 bg-white/10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white/20 disabled:opacity-40 disabled:pointer-events-none"
-                        disabled={skillsPage >= totalSkillPages - 1}
-                      >
-                        <ChevronRight className="w-6 h-6 text-white" />
-                      </button>
-                    )}
-                  </div>
                 </div>
               </div>
 
-              {totalSkillPages > 1 && (
-                <div className="flex justify-center space-x-3">
-                  {Array.from({ length: totalSkillPages }).map((_, i) => (
-                    <button
-                      key={i}
-                      aria-label={`Go to skills page ${i + 1}`}
-                      onClick={() => {
-                        pageDirRef.current = i > skillsPage ? 1 : -1;
-                        setSkillsPage(i);
-                      }}
-                      className={`w-3 h-3 rounded-full transition-colors ${i === skillsPage ? "bg-orange" : "bg-white"}`}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
           </section>
         ) : <div style={{ height: 0 }} />}
@@ -1384,11 +1343,9 @@ export default function Index() {
 
       {/* Experiences Section */}
   <div ref={experiencesRef}>
-    {(expTotalCount ?? experiences.length) > 0 ? (
-      <Suspense fallback={null}>
-        <ExperiencesSectionLazy />
-      </Suspense>
-    ) : <div style={{ height: 0 }} />}
+    <Suspense fallback={null}>
+      <ExperiencesSectionLazy />
+    </Suspense>
   </div>
 
 
