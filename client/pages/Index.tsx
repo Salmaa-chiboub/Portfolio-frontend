@@ -1008,12 +1008,16 @@ export default function Index() {
                       <picture>
                         <source
                           type="image/avif"
-                          srcSet={useNImages ? makeSrcSet((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.png"), [280, 400, 512, 640, 768], "avif") : undefined}
+                          srcSet={useNImages
+                            ? makeSrcSet((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.avif"), [280, 400, 512, 640, 768], "avif")
+                            : ((!hero || !hero.image || hero.image.trim() === "") ? addCacheBuster("/caracter.avif") : undefined)}
                           sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
                         />
                         <source
                           type="image/webp"
-                          srcSet={useNImages ? makeSrcSet((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.png"), [280, 400, 512, 640, 768], "webp") : undefined}
+                          srcSet={useNImages
+                            ? makeSrcSet((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.avif"), [280, 400, 512, 640, 768], "webp")
+                            : undefined}
                           sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
                         />
                         <motion.img
