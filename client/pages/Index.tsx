@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getApiUrl } from "@/lib/config";
-import { makeSrcSet, netlifyImagesEnabled } from "@/lib/images";
+import { makeSrcSet, netlifyImagesEnabled, pingNetlifyImages } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import { useHero, useAbout, useBlogs, useProjects, useExperiences } from "@/hooks/use-api";
 import { useDebouncedValue } from "@/hooks/use-debounce";
@@ -181,7 +181,14 @@ export default function Index() {
     return () => window.removeEventListener("resize", check);
   }, []);
   const lowPerf = prefersReducedMotion || isMobile;
-  const useNImages = netlifyImagesEnabled();
+  const [useNImages, setUseNImages] = useState(netlifyImagesEnabled());
+  useEffect(() => {
+    let mounted = true;
+    pingNetlifyImages().then((ok) => {
+      if (mounted) setUseNImages(ok);
+    });
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];

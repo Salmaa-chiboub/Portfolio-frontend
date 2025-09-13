@@ -32,7 +32,17 @@ export const netlifyImagesEnabled = () => {
   if (typeof window === "undefined") return false;
   const host = window.location.hostname || "";
   const isLocal = /^(localhost|127\.|0\.0\.0\.0)/.test(host);
-  // Enable on production or when not on localhost
   const prod = (import.meta as any)?.env?.PROD === true;
   return !isLocal || prod;
+};
+
+export const pingNetlifyImages = async (): Promise<boolean> => {
+  if (typeof window === "undefined") return false;
+  try {
+    const testUrl = "/.netlify/images?url=" + encodeURIComponent("/robots.txt") + "&w=8&fm=webp";
+    const res = await fetch(testUrl, { method: "GET", cache: "no-store" });
+    return res.ok;
+  } catch {
+    return false;
+  }
 };
