@@ -1057,27 +1057,29 @@ export default function Index() {
                           />
                         </picture>
                       ) : (
-                        <motion.img
-                          loading="eager"
-                          fetchPriority="high"
-                          decoding="async"
-                          src={addCacheBuster("/caracter.avif")}
-                          alt={hero?.headline || "Salma Chiboub - Product Designer"}
-                          className="absolute inset-0 w-full h-full object-cover rounded-none"
-                          sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
-                          onError={(e) => {
-                            // ensure we always show something
-                            const img = e.currentTarget as HTMLImageElement;
-                            if (!img.dataset.fallback) {
-                              img.dataset.fallback = "1";
-                              img.src = "/placeholder.svg"; // plain path without cache buster
-                            }
-                          }}
-                          initial={{ opacity: 0, scale: 0.98 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          viewport={{ once: false, amount: 0.4 }}
-                          transition={{ duration: 0.9, ease: "easeOut" }}
-                        />
+                        <picture>
+                          <source type="image/avif" srcSet={addCacheBuster("/caracter.avif")} />
+                          <motion.img
+                            loading="eager"
+                            fetchPriority="high"
+                            decoding="async"
+                            src={addCacheBuster("/placeholder.svg")}
+                            alt={hero?.headline || "Salma Chiboub - Product Designer"}
+                            className="absolute inset-0 w-full h-full object-cover rounded-none"
+                            sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                            onError={(e) => {
+                              const img = e.currentTarget as HTMLImageElement;
+                              if (!img.dataset.fallback) {
+                                img.dataset.fallback = "1";
+                                img.src = "/placeholder.svg";
+                              }
+                            }}
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: false, amount: 0.4 }}
+                            transition={{ duration: 0.9, ease: "easeOut" }}
+                          />
+                        </picture>
                       )}
                     </div>
                   </div>
