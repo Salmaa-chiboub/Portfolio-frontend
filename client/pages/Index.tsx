@@ -1047,7 +1047,7 @@ export default function Index() {
                               const img = e.currentTarget as HTMLImageElement;
                               if (!img.dataset.fallback) {
                                 img.dataset.fallback = "1";
-                                img.src = "/caracter.png";
+                                img.src = "/placeholder.svg";
                               }
                             }}
                             initial={{ opacity: 0, scale: 0.98 }}
@@ -1061,7 +1061,7 @@ export default function Index() {
                           loading="eager"
                           fetchPriority="high"
                           decoding="async"
-                          src={addCacheBuster("/caracter.png")}
+                          src={addCacheBuster("/caracter.avif")}
                           alt={hero?.headline || "Salma Chiboub - Product Designer"}
                           className="absolute inset-0 w-full h-full object-cover rounded-none"
                           sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
@@ -1070,7 +1070,7 @@ export default function Index() {
                             const img = e.currentTarget as HTMLImageElement;
                             if (!img.dataset.fallback) {
                               img.dataset.fallback = "1";
-                              img.src = "/caracter.png"; // plain path without cache buster
+                              img.src = "/placeholder.svg"; // plain path without cache buster
                             }
                           }}
                           initial={{ opacity: 0, scale: 0.98 }}
