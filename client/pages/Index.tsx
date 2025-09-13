@@ -1305,15 +1305,7 @@ export default function Index() {
               <div className="px-2 sm:px-4 md:px-6 lg:px-10 xl:px-14">
                 <div className="items-center">
                   <div style={{ minHeight: skillsGridMinH }} ref={skillsWheelRef} className="relative mb-6">
-                    <AnimatePresence initial={false} mode="wait" custom={pageDirRef.current}>
-                      <motion.div
-                        key={skillsPage}
-                        custom={pageDirRef.current}
-                        variants={skillsPageVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ type: "spring", stiffness: 260, damping: 30, mass: 0.8 }}
+                    <div
                         className="absolute inset-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6 xl:gap-8"
                         style={{ willChange: "transform" }}
                         onTouchStart={handleSkillsTouchStart}
@@ -1337,8 +1329,20 @@ export default function Index() {
                               </div>
                             </div>
                           ))}
-                      </motion.div>
-                    </AnimatePresence>
+                      </div>
+                  </div>
+                  <div className="flex justify-center space-x-3">
+                    {Array.from({ length: Math.max(totalSkillPages, 1) }).map((_, i) => (
+                      <button
+                        key={i}
+                        aria-label={`Go to skills page ${i + 1}`}
+                        onClick={() => {
+                          pageDirRef.current = i > skillsPage ? 1 : -1;
+                          setSkillsPage(i);
+                        }}
+                        className={`w-3 h-3 rounded-full transition-colors ${i === skillsPage ? "bg-orange" : "bg-white"}`}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>

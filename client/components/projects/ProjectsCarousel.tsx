@@ -230,7 +230,7 @@ export default function ProjectsCarousel() {
               {visibleProjects.length > 1 && (
                 <button onClick={() => setVisibleCount(1)} className="px-6 py-3 rounded-full border border-gray-border bg-white text-gray-text hover:bg-gray-bg font-lufga">See less</button>
               )}
-              {visibleProjects.length === 1 && visibleProjects.length < filteredProjects.length && (
+              {visibleProjects.length < filteredProjects.length && (
                 <button onClick={() => setVisibleCount((v) => Math.min(filteredProjects.length, v + 1))} className="px-6 py-3 rounded-full bg-orange text-white hover:bg-orange/90 font-lufga">See more projects</button>
               )}
             </div>
