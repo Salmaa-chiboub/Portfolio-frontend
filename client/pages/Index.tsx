@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getApiUrl } from "@/lib/config";
+import { makeSrcSet, netlifyImagesEnabled } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import { useHero, useAbout, useBlogs, useProjects, useExperiences } from "@/hooks/use-api";
 import { useDebouncedValue } from "@/hooks/use-debounce";
@@ -180,6 +181,7 @@ export default function Index() {
     return () => window.removeEventListener("resize", check);
   }, []);
   const lowPerf = prefersReducedMotion || isMobile;
+  const useNImages = netlifyImagesEnabled();
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -1001,18 +1003,35 @@ export default function Index() {
 
                 {/* Main image */}
                 <div className="relative z-10">
-                  <motion.img
-                    loading="eager"
-                    fetchPriority="high"
-                    decoding="async"
-                    src={(hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.png")}
-                    alt={hero?.headline || "Salma Chiboub - Product Designer"}
-                    className="w-full max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg h-auto object-cover rounded-none"
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: false, amount: 0.4 }}
-                    transition={{ duration: 0.9, ease: "easeOut" }}
-                  />
+                  <div className="relative w-full max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg">
+                    <div className="relative aspect-[4/5]">
+                      <picture>
+                        <source
+                          type="image/avif"
+                          srcSet={useNImages ? makeSrcSet((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.png"), [280, 400, 512, 640, 768], "avif") : undefined}
+                          sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                        />
+                        <source
+                          type="image/webp"
+                          srcSet={useNImages ? makeSrcSet((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.png"), [280, 400, 512, 640, 768], "webp") : undefined}
+                          sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                        />
+                        <motion.img
+                          loading="eager"
+                          fetchPriority="high"
+                          decoding="async"
+                          src={(hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.png")}
+                          alt={hero?.headline || "Salma Chiboub - Product Designer"}
+                          className="absolute inset-0 w-full h-full object-cover rounded-none"
+                          sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                          initial={{ opacity: 0, scale: 0.98 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          viewport={{ once: false, amount: 0.4 }}
+                          transition={{ duration: 0.9, ease: "easeOut" }}
+                        />
+                      </picture>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Social icons - show only if at least one link exists */}
@@ -1503,13 +1522,26 @@ export default function Index() {
                             <div className="relative group-hover:shadow-2xl transition-shadow duration-300 blog-image-frame overflow-hidden">
                               <div className="relative w-full h-[400px] lg:h-[432px] shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.15)] transition-shadow duration-300 blog-image-frame overflow-hidden">
                                 <div className="w-full h-full overflow-hidden relative blog-image-mask">
-                                  <img
-                                    loading="lazy"
-                                    decoding="async"
-                                    src={addCacheBuster(img)}
-                                    alt={post.title}
-                                    className="absolute inset-0 block w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 rounded-none"
-                                  />
+                                  <picture>
+                                    <source
+                                      type="image/avif"
+                                      srcSet={useNImages ? makeSrcSet(addCacheBuster(img), [400, 600, 800, 992, 1200], "avif") : undefined}
+                                      sizes="(max-width: 1024px) 100vw, 33vw"
+                                    />
+                                    <source
+                                      type="image/webp"
+                                      srcSet={useNImages ? makeSrcSet(addCacheBuster(img), [400, 600, 800, 992, 1200], "webp") : undefined}
+                                      sizes="(max-width: 1024px) 100vw, 33vw"
+                                    />
+                                    <img
+                                      loading="lazy"
+                                      decoding="async"
+                                      src={addCacheBuster(img)}
+                                      alt={post.title}
+                                      className="absolute inset-0 block w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 rounded-none"
+                                      sizes="(max-width: 1024px) 100vw, 33vw"
+                                    />
+                                  </picture>
                                   <div className="absolute bottom-0 right-0 w-16 h-16 lg:w-20 lg:h-20">
                                     <div className="w-full h-full blog-corner-cutout"></div>
                                   </div>
