@@ -1020,7 +1020,7 @@ export default function Index() {
                 {/* Main image */}
                 <div className="relative z-10">
                   <div className="relative w-full max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg">
-                    <div className="relative aspect-[4/5]">
+                    <div className="relative aspect-[4/5] w-full min-h-[320px] sm:min-h-[380px] lg:min-h-[460px]">
                       {(hero && hero.image && hero.image.trim() !== "") ? (
                         <picture>
                           <source
@@ -1050,7 +1050,7 @@ export default function Index() {
                                 img.src = "/placeholder.svg";
                               }
                             }}
-                            initial={{ opacity: 0, scale: 0.98 }}
+                            initial={{ opacity: 1, scale: 1 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: false, amount: 0.4 }}
                             transition={{ duration: 0.9, ease: "easeOut" }}
@@ -1074,7 +1074,7 @@ export default function Index() {
                                 img.src = "/placeholder.svg";
                               }
                             }}
-                            initial={{ opacity: 0, scale: 0.98 }}
+                            initial={{ opacity: 1, scale: 1 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: false, amount: 0.4 }}
                             transition={{ duration: 0.9, ease: "easeOut" }}
