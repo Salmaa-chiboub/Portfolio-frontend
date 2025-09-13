@@ -192,14 +192,23 @@ export default function Index() {
     return () => window.removeEventListener("resize", check);
   }, []);
   const lowPerf = prefersReducedMotion || isMobile;
-  const [useNImages, setUseNImages] = useState(netlifyImagesEnabled());
+  const [useNImages, setUseNImages] = useState(false);
   useEffect(() => {
     let mounted = true;
-    const run = () => pingNetlifyImages().then((ok) => { if (mounted) setUseNImages(ok); });
-    if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(run, { timeout: 3000 });
-    } else {
-      setTimeout(run, 3000);
+    const run = () => pingNetlifyImages().then((ok) => { if (mounted) setUseNImages(ok && netlifyImagesEnabled()); });
+    if (typeof window !== 'undefined') {
+      if (document.readyState === 'complete') {
+        (window as any).requestIdleCallback ? (window as any).requestIdleCallback(run, { timeout: 5000 }) : setTimeout(run, 5000);
+      } else {
+        const onLoad = () => {
+          (window as any).requestIdleCallback ? (window as any).requestIdleCallback(run, { timeout: 5000 }) : setTimeout(run, 5000);
+        };
+        window.addEventListener('load', onLoad, { once: true });
+        return () => {
+          window.removeEventListener('load', onLoad);
+          mounted = false;
+        };
+      }
     }
     return () => { mounted = false; };
   }, []);
@@ -473,19 +482,9 @@ export default function Index() {
     try { localStorage.setItem("theme", isDarkMode ? "dark" : "light"); } catch {}
   }, [isDarkMode]);
 
-  // Hero typing animation
+  // Hero title (static, no JS typing)
   const heroFirst = "I'm ";
   const heroSecond = "Salma Chiboub";
-  const heroTotal = heroFirst.length + heroSecond.length;
-  const [typedIdx, setTypedIdx] = useState(0);
-  useEffect(() => {
-    let id: number | null = null;
-    const tick = () => setTypedIdx((v) => (v >= heroTotal ? v : v + 1));
-    id = window.setInterval(tick, 80);
-    return () => {
-      if (id) window.clearInterval(id);
-    };
-  }, []);
 
   const aboutTitle = about?.title?.trim() || "";
   const aboutWords = aboutTitle.split(" ");
@@ -976,8 +975,8 @@ export default function Index() {
 
               {/* Main heading - Responsive text sizes */}
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-urbanist font-bold leading-none tracking-tight">
-                <span className="text-dark">{typedIdx <= heroFirst.length ? heroFirst.slice(0, typedIdx) : heroFirst}</span>
-                <span className="text-orange">{typedIdx > heroFirst.length ? heroSecond.slice(0, Math.min(typedIdx - heroFirst.length, heroSecond.length)) : ""}</span>
+                <span className="text-dark">{heroFirst}</span>
+                <span className="text-orange">{heroSecond}</span>
               </h1>
 
               {/* Headline */}
@@ -1428,11 +1427,7 @@ export default function Index() {
               className="absolute left-[-10%] w-[220%]"
               style={{ height: '120px', top: '15%', transform: 'rotate(-2deg)' }}
             >
-              <motion.div
-                className={`bg-white flex items-center gap-4 ${lowPerf ? 'w-full' : 'w-[200%]'}`}
-                animate={lowPerf ? undefined : { x: ['0%', '-50%'] }}
-                transition={lowPerf ? undefined : { duration: 20, repeat: Infinity, ease: 'linear' }}
-              >
+              <div className={`bg-white flex items-center gap-4 ${lowPerf ? 'w-full' : 'w-[200%]'} marquee-slide`}>
                 {/* First set of items */}
                 <span className="text-black font-lufga text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-normal tracking-tight whitespace-nowrap px-4">
                   Software Engineering
@@ -1476,7 +1471,7 @@ export default function Index() {
                   Cloud Computing
                 </span>
                 <Star className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 xl:w-9 xl:h-9 fill-orange text-orange flex-shrink-0" />
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>

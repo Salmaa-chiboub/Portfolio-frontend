@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Self-hosted Lufga font with font-display swap to avoid FOIT */
+@font-face {
+  font-family: "Lufga";
+  src: url("https://fonts.cdnfonts.com/s/67775/LufgaRegular.woff2") format("woff2"),
+       url("https://fonts.cdnfonts.com/s/67775/LufgaRegular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Lufga";
+  src: url("https://fonts.cdnfonts.com/s/67775/LufgaMedium.woff2") format("woff2"),
+       url("https://fonts.cdnfonts.com/s/67775/LufgaMedium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Lufga";
+  src: url("https://fonts.cdnfonts.com/s/67775/LufgaSemiBold.woff2") format("woff2"),
+       url("https://fonts.cdnfonts.com/s/67775/LufgaSemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Lufga";
+  src: url("https://fonts.cdnfonts.com/s/67775/LufgaBold.woff2") format("woff2"),
+       url("https://fonts.cdnfonts.com/s/67775/LufgaBold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   /**
    * Tailwind CSS theme
@@ -250,4 +284,17 @@ html {
     50% { transform: translateY(-22px) scale(1.02) rotate(4deg); border-radius: 60% 40% 50% 50% / 40% 60% 45% 55%; }
     100% { transform: translateY(0) scale(1) rotate(0deg); border-radius: 48% 52% 37% 63% / 52% 48% 62% 38%; }
   }
+}
+
+/* CSS-only marquee to replace JS motion animation */
+@keyframes marqueeSlide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-slide {
+  will-change: transform;
+  animation: marqueeSlide 20s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-slide { animation: none; }
 }
