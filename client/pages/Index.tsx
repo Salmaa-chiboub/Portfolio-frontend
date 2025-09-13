@@ -1010,7 +1010,7 @@ export default function Index() {
                           type="image/avif"
                           srcSet={useNImages
                             ? makeSrcSet((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.avif"), [280, 400, 512, 640, 768], "avif")
-                            : ((!hero || !hero.image || hero.image.trim() === "") ? addCacheBuster("/caracter.avif") : undefined)}
+                            : ((hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.avif"))}
                           sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
                         />
                         <source
@@ -1024,7 +1024,7 @@ export default function Index() {
                           loading="eager"
                           fetchPriority="high"
                           decoding="async"
-                          src={(hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.png")}
+                          src={(hero && hero.image && hero.image.trim() !== "") ? addCacheBuster(hero.image) : addCacheBuster("/caracter.avif")}
                           alt={hero?.headline || "Salma Chiboub - Product Designer"}
                           className="absolute inset-0 w-full h-full object-cover rounded-none"
                           sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
