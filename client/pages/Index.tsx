@@ -145,6 +145,10 @@ export default function Index() {
   const [expandedExp, setExpandedExp] = useState<Record<number, boolean>>({});
   const expTypes = useMemo(() => Array.from(new Set((experiences || []).map(e => e.experience_type).filter(Boolean))), [experiences]);
   const displayedExperiences = useMemo(() => {
+    const toTime = (e: ExperienceItem) => {
+      const t = e?.start_date ? Date.parse(e.start_date) : NaN;
+      return Number.isFinite(t) ? t : Number.POSITIVE_INFINITY;
+    };
     let list = experiences;
     if (expFilter !== "All") list = list.filter(e => e.experience_type === expFilter);
     const q = expQuery.trim().toLowerCase();
@@ -155,7 +159,7 @@ export default function Index() {
         e.description.toLowerCase().includes(q)
       );
     }
-    return list;
+    return list.slice().sort((a, b) => toTime(a) - toTime(b));
   }, [experiences, expFilter, expQuery]);
 
   const timelineRef = useRef<HTMLDivElement | null>(null);

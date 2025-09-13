@@ -79,6 +79,10 @@ export default function ExperiencesSection() {
   );
 
   const displayedExperiences = useMemo(() => {
+    const toTime = (e: ExperienceItem) => {
+      const t = e?.start_date ? Date.parse(e.start_date) : NaN;
+      return Number.isFinite(t) ? t : Number.POSITIVE_INFINITY;
+    };
     let list = experiences;
     if (expFilter !== "All") list = list.filter((e) => e.experience_type === expFilter);
     const q = (debouncedExpQuery || "").trim().toLowerCase();
@@ -90,7 +94,8 @@ export default function ExperiencesSection() {
           e.description.toLowerCase().includes(q)
       );
     }
-    return list;
+    // Oldest first (ascending by start_date)
+    return list.slice().sort((a, b) => toTime(a) - toTime(b));
   }, [experiences, expFilter, debouncedExpQuery]);
 
   // Timeline progress
