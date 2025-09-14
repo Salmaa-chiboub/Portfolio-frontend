@@ -26,6 +26,8 @@ import {
 
 import Typewriter from "@/components/ui/typewriter";
 
+import { setTimeout, clearTimeout } from "timers";
+
 type SkillReference = {
   id: number;
   name: string;
@@ -477,11 +479,12 @@ export default function Index() {
       const run = () => {
         document.documentElement.classList.remove('marquee-paused');
       };
+
       if ('requestIdleCallback' in window) {
         (window as any).requestIdleCallback(run, { timeout: 700 });
       } else {
-        const t = setTimeout(run, 700);
-        return () => clearTimeout(t);
+        const t: ReturnType<typeof setTimeout> = globalThis.setTimeout(run, 700);
+        return () => globalThis.clearTimeout(t);
       }
     } catch {}
   }, []);
