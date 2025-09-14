@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useProjects } from "@/hooks/use-api";
-import { makeSrcSet, netlifyImagesEnabled } from "@/lib/images";
+import { buildCloudinaryUrl, makeCloudinarySrcSet } from "@/lib/images";
 
 const BUILD_ID = typeof window !== "undefined" && (import.meta as any).hot
   ? String(Date.now())
@@ -56,23 +56,23 @@ export default function Projects() {
               return (
                 <div key={p.id} className="rounded-2xl border border-gray-border bg-white p-3">
                   <div className="relative w-full h-48 rounded-xl overflow-hidden bg-gray-bg border border-gray-border">
-                    <picture>
-                      <source type="image/avif" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(img), [400, 600, 800, 992, 1200], 'avif') : undefined} sizes="(max-width: 1024px) 100vw, 33vw" />
-                      <source type="image/webp" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(img), [400, 600, 800, 992, 1200], 'webp') : undefined} sizes="(max-width: 1024px) 100vw, 33vw" />
-                      <img
-                        loading="lazy"
-                        decoding="async"
-                        src={addCacheBuster(img)}
-                        alt={p.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const el = e.currentTarget as HTMLImageElement;
-                          if (el.src.includes('project-placeholder.svg')) return;
-                          el.onerror = null;
-                          el.src = '/project-placeholder.svg';
-                        }}
-                      />
-                    </picture>
+                    <img
+                      loading="lazy"
+                      decoding="async"
+                      src={buildCloudinaryUrl(img, { w: 800 })}
+                      srcSet={makeCloudinarySrcSet(img, [400, 600, 800, 992, 1200])}
+                      sizes="(max-width: 1024px) 100vw, 33vw"
+                      alt={p.title}
+                      width={800}
+                      height={480}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const el = e.currentTarget as HTMLImageElement;
+                        if (el.src.includes('project-placeholder.svg')) return;
+                        el.onerror = null;
+                        el.src = '/project-placeholder.svg';
+                      }}
+                    />
                   </div>
                   <h3 className="mt-3 text-lg font-lufga font-bold text-gray-text line-clamp-2" title={p.title}>{p.title}</h3>
                   {excerpt && <p className="mt-1 text-sm text-gray-lighter line-clamp-2">{excerpt}</p>}

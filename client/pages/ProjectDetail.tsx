@@ -5,7 +5,7 @@ import { Github, ExternalLink } from "lucide-react";
 import { getApiUrl } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
-import { makeSrcSet, netlifyImagesEnabled } from "@/lib/images";
+import { buildCloudinaryUrl, makeCloudinarySrcSet } from "@/lib/images";
 
 type ProjectMedia = {
   id: number;
@@ -252,28 +252,28 @@ export default function ProjectDetail() {
               {/* Main image container - 70% width, centered */}
               <div className="relative mx-auto w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%] touch-pan-y" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} style={{ touchAction: 'pan-y' }}>
                 <div className="rounded-3xl overflow-hidden">
-                  <picture>
-                    <source type="image/avif" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(mainImage), [640, 768, 992, 1200, 1600], 'avif') : undefined} sizes="(max-width: 1024px) 100vw, 70vw" />
-                    <source type="image/webp" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(mainImage), [640, 768, 992, 1200, 1600], 'webp') : undefined} sizes="(max-width: 1024px) 100vw, 70vw" />
-                    <motion.img
-                      key={mainImage}
-                      loading="lazy"
-                      decoding="async"
-                      src={addCacheBuster(mainImage)}
-                      alt={project.title}
-                      className="w-full h-[16rem] sm:h-[18rem] md:h-[22rem] lg:h-[30rem] object-cover cursor-zoom-in"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.4, ease: "easeOut" }}
-                      onError={(e) => {
-                        const img = e.currentTarget as HTMLImageElement;
-                        if (img.src.includes("project-placeholder.svg")) return;
-                        img.onerror = null;
-                        img.src = "/project-placeholder.svg";
-                      }}
-                      onDoubleClick={() => openViewer(activeIndex)}
-                    />
-                  </picture>
+                  <motion.img
+                    key={mainImage}
+                    loading="lazy"
+                    decoding="async"
+                    src={buildCloudinaryUrl(mainImage, { w: 1600 })}
+                    srcSet={makeCloudinarySrcSet(mainImage, [640, 768, 992, 1200, 1600])}
+                    sizes="(max-width: 1024px) 100vw, 70vw"
+                    alt={project.title}
+                    width={1600}
+                    height={900}
+                    className="w-full h-[16rem] sm:h-[18rem] md:h-[22rem] lg:h-[30rem] object-cover cursor-zoom-in"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    onError={(e) => {
+                      const img = e.currentTarget as HTMLImageElement;
+                      if (img.src.includes("project-placeholder.svg")) return;
+                      img.onerror = null;
+                      img.src = "/project-placeholder.svg";
+                    }}
+                    onDoubleClick={() => openViewer(activeIndex)}
+                  />
                 </div>
 
               </div>
@@ -375,23 +375,23 @@ export default function ProjectDetail() {
                   {suggestions.map((p: any) => (
                     <div key={p.id} className="rounded-2xl border border-gray-border bg-white p-3">
                       <div className="relative w-full h-40 rounded-xl overflow-hidden bg-gray-bg border border-gray-border">
-                        <picture>
-                          <source type="image/avif" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg"), [400, 600, 800, 992], 'avif') : undefined} sizes="(max-width: 1024px) 100vw, 25vw" />
-                          <source type="image/webp" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg"), [400, 600, 800, 992], 'webp') : undefined} sizes="(max-width: 1024px) 100vw, 25vw" />
-                          <img
-                            loading="lazy"
-                            decoding="async"
-                            src={addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg")}
-                            alt={p?.title || "Project"}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const img = e.currentTarget as HTMLImageElement;
-                              if (img.src.includes("project-placeholder.svg")) return;
-                              img.onerror = null;
-                              img.src = "/project-placeholder.svg";
-                            }}
-                          />
-                        </picture>
+                        <img
+                          loading="lazy"
+                          decoding="async"
+                          src={buildCloudinaryUrl(p?.media?.[0]?.image || "/project-placeholder.svg", { w: 800 })}
+                          srcSet={makeCloudinarySrcSet(p?.media?.[0]?.image || "/project-placeholder.svg", [400, 600, 800, 992])}
+                          sizes="(max-width: 1024px) 100vw, 25vw"
+                          alt={p?.title || "Project"}
+                          width={600}
+                          height={360}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const img = e.currentTarget as HTMLImageElement;
+                            if (img.src.includes("project-placeholder.svg")) return;
+                            img.onerror = null;
+                            img.src = "/project-placeholder.svg";
+                          }}
+                        />
                       </div>
                       <h3 className="mt-3 text-lg font-lufga font-bold text-gray-text truncate" title={p?.title}>{p?.title || "Project"}</h3>
                       <Link
@@ -413,7 +413,7 @@ export default function ProjectDetail() {
           <div className="fixed inset-0 z-[99999] flex items-start sm:items-center justify-center bg-black/80 p-4 overflow-auto">
             <button onClick={closeViewer} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg z-50" aria-label="Close viewer">✕</button>
             <div className="max-w-[95vw] max-h-[95vh] my-8">
-              <img src={addCacheBuster(media[activeIndex]?.image || "/project-placeholder.svg")} alt={project.title} className="w-full max-h-[90vh] object-contain rounded-md" />
+              <img src={buildCloudinaryUrl(media[activeIndex]?.image || "/project-placeholder.svg", { w: 1600 })} alt={project.title} width={1600} height={900} className="w-full max-h-[90vh] object-contain rounded-md" />
             </div>
           </div>,
           document.body

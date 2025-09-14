@@ -6,6 +6,7 @@ import { Github, ExternalLink } from "lucide-react";
 import { getApiUrl } from "@/lib/config";
 import { stripHtml, cn } from "@/lib/utils";
 import { useBlogs } from "@/hooks/use-api";
+import { buildCloudinaryUrl, makeCloudinarySrcSet } from "@/lib/images";
 
 type BlogImage = { id: number; image: string; caption?: string | null };
 export type BlogPost = {
@@ -132,8 +133,12 @@ export default function BlogDetail({ slugParam }: { slugParam?: string } = {}) {
                   key={heroImg}
                   loading="lazy"
                   decoding="async"
-                  src={addCacheBuster(heroImg)}
+                  src={buildCloudinaryUrl(heroImg, { w: 1600 })}
+                  srcSet={makeCloudinarySrcSet(heroImg, [640, 768, 992, 1200, 1600])}
+                  sizes="(max-width: 1024px) 100vw, 70vw"
                   alt={blog.title}
+                  width={1600}
+                  height={900}
                   className="w-full h-[16rem] sm:h-[18rem] md:h-[22rem] lg:h-[30rem] object-cover cursor-zoom-in"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -199,7 +204,7 @@ export default function BlogDetail({ slugParam }: { slugParam?: string } = {}) {
                       <button onClick={() => navigate(`/blog/${post.slug}`)} className="group cursor-pointer focus:outline-none focus:ring-4 focus:ring-orange/30 blog-image-frame overflow-hidden transition-all duration-300" aria-label={`Read blog post: ${post.title}`}>
                         <div className="relative group-hover:shadow-2xl transition-shadow duration-300 blog-image-frame overflow-hidden">
                           <div className="relative w-full h-[260px] shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.15)] transition-shadow duration-300 blog-image-frame overflow-hidden">
-                            <img loading="lazy" decoding="async" src={addCacheBuster(img)} alt={post.title} className="absolute inset-0 w-full h-full object-cover rounded-none" />
+                            <img loading="lazy" decoding="async" src={buildCloudinaryUrl(img, { w: 992 })} srcSet={makeCloudinarySrcSet(img, [400, 600, 800, 992])} sizes="(max-width: 1024px) 100vw, 50vw" alt={post.title} width={992} height={620} className="absolute inset-0 w-full h-full object-cover rounded-none" />
                           </div>
                         </div>
                       </button>
@@ -219,7 +224,7 @@ export default function BlogDetail({ slugParam }: { slugParam?: string } = {}) {
         <div className="fixed inset-0 z-[99999] flex items-start sm:items-center justify-center bg-black/80 p-4 overflow-auto">
           <button onClick={closeViewer} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg z-50" aria-label="Close viewer">✕</button>
           <div className="max-w-[95vw] max-h-[95vh] my-8">
-            <img src={addCacheBuster(blog.images[activeIndex]?.image || "/project-placeholder.svg")} alt={blog.title} className="w-full max-h-[90vh] object-contain rounded-md" />
+            <img src={buildCloudinaryUrl(blog.images[activeIndex]?.image || "/project-placeholder.svg", { w: 1600 })} alt={blog.title} width={1600} height={900} className="w-full max-h-[90vh] object-contain rounded-md" />
           </div>
         </div>,
         document.body

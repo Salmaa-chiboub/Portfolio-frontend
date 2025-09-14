@@ -34,7 +34,7 @@ const addCacheBuster = (u: string) => {
 
 import { getApiUrl } from "@/lib/config";
 import { useProjects } from "@/hooks/use-api";
-import { makeSrcSet, netlifyImagesEnabled } from "@/lib/images";
+import { buildCloudinaryUrl, makeCloudinarySrcSet } from "@/lib/images";
 
 function parseSkills(list?: unknown): string[] {
   let items: unknown[] = [];
@@ -158,26 +158,23 @@ export default function ProjectsCarousel() {
                           }
                         }}
                       >
-                        <picture>
-                          <source type="image/avif" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(src), [640, 768, 992, 1200, 1600], 'avif') : undefined} sizes="(max-width: 1280px) 100vw, 980px" />
-                          <source type="image/webp" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(src), [640, 768, 992, 1200, 1600], 'webp') : undefined} sizes="(max-width: 1280px) 100vw, 980px" />
-                          <img
-                            src={addCacheBuster(src)}
-                            alt={p.title}
-                            width={980}
-                            height={400}
-                            className="absolute inset-0 w-full h-full object-cover"
-                            loading="lazy"
-                            decoding="async"
-                            sizes="(max-width: 1280px) 100vw, 980px"
-                            onError={(e) => {
-                              const img = e.currentTarget as HTMLImageElement;
-                              if (img.src.includes("project-placeholder.svg")) return;
-                              img.onerror = null;
-                              img.src = "/project-placeholder.svg";
-                            }}
-                          />
-                        </picture>
+                        <img
+                          src={buildCloudinaryUrl(src, { w: 1600 })}
+                          srcSet={makeCloudinarySrcSet(src, [640, 768, 992, 1200, 1600])}
+                          sizes="(max-width: 1280px) 100vw, 980px"
+                          alt={p.title}
+                          width={980}
+                          height={400}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            const img = e.currentTarget as HTMLImageElement;
+                            if (img.src.includes("project-placeholder.svg")) return;
+                            img.onerror = null;
+                            img.src = "/project-placeholder.svg";
+                          }}
+                        />
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/36 to-black/50 opacity-60" />
                       </div>
                     </button>

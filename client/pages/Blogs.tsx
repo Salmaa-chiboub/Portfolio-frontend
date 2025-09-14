@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "@/lib/config";
 import { stripHtml } from "@/lib/utils";
 import { useBlogs } from "@/hooks/use-api";
+import { buildCloudinaryUrl, makeCloudinarySrcSet } from "@/lib/images";
 
 type BlogImage = { id: number; image: string; caption?: string | null };
 export type BlogPost = {
@@ -83,8 +84,12 @@ export default function Blogs() {
                           <img
                             loading="lazy"
                             decoding="async"
-                            src={addCacheBuster(img)}
+                            src={buildCloudinaryUrl(img, { w: 1200 })}
+                            srcSet={makeCloudinarySrcSet(img, [600, 800, 992, 1200, 1600])}
+                            sizes="(max-width: 1024px) 100vw, 33vw"
                             alt={post.title}
+                            width={1200}
+                            height={800}
                             className="absolute inset-0 block w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 rounded-none"
                           />
                           <div className="absolute bottom-0 right-0 w-16 h-16 lg:w-20 lg:h-20">
