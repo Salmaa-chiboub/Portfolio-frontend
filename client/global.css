@@ -192,6 +192,31 @@ html {
     overflow: visible;
   }
 
+  /* While scrolling, reduce heavy paints and animations to avoid jank */
+  .is-scrolling .hero-animated-bg,
+  .is-scrolling .hero-blob,
+  .is-scrolling .backdrop-blur-lg,
+  .is-scrolling .backdrop-blur-md,
+  .is-scrolling .shadow-lg,
+  .is-scrolling .shadow-sm {
+    animation-play-state: paused !important;
+    transition: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    will-change: auto !important;
+  }
+
+  .is-scrolling .marquee-slide {
+    animation-play-state: paused !important;
+  }
+
+  /* Disable heavy transitions during scroll */
+  .is-scrolling * {
+    transition: none !important;
+    transform: none !important;
+  }
+
   .hero-blob {
     position: absolute;
     filter: blur(20px) saturate(120%);

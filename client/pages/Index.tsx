@@ -294,7 +294,15 @@ export default function Index() {
     let ticking = false;
     let prev = window.scrollY > 50;
     setIsScrolled(prev);
+    let scrollTimer: number | null = null;
     const onScroll = () => {
+      // add temporary class to reduce heavy paints/animations while scrolling
+      try {
+        document.documentElement.classList.add('is-scrolling');
+        if (scrollTimer) window.clearTimeout(scrollTimer);
+        scrollTimer = window.setTimeout(() => document.documentElement.classList.remove('is-scrolling'), 180);
+      } catch {}
+
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
@@ -307,7 +315,11 @@ export default function Index() {
       });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (scrollTimer) window.clearTimeout(scrollTimer);
+      try { document.documentElement.classList.remove('is-scrolling'); } catch {}
+    };
   }, []);
 
 
