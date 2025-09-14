@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getApiUrl } from "@/lib/config";
-import { buildCloudinaryUrl, makeCloudinarySrcSet } from "@/lib/images";
+import { buildCloudinaryUrl, makeCloudinarySrcSet, netlifyImagesEnabled, pingNetlifyImages } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import { useHero, useAbout, useBlogs, useProjects, useExperiences } from "@/hooks/use-api";
 import { useDebouncedValue } from "@/hooks/use-debounce";

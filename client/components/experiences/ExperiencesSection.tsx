@@ -276,6 +276,44 @@ export default function ExperiencesSection() {
 
               <div className="space-y-10">
 
+                {expLoading && (
+                  <>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="relative lg:py-12">
+                        <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 top-3 w-6 h-6 bg-gray-border rounded-full shadow-sm" />
+                        <div className="grid lg:grid-cols-2 items-stretch gap-6 lg:gap-10">
+                          <div className="self-center">
+                            <article className="border border-gray-border rounded-2xl p-5 lg:p-6 bg-background shadow-sm animate-pulse">
+                              <header className="mb-2">
+                                <div className="h-6 lg:h-8 bg-gray-border rounded-md w-1/2 mb-3" />
+                                <div className="h-4 bg-gray-border rounded-md w-1/3" />
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  <div className="px-3 py-1 rounded-full bg-gray-bg border border-gray-border text-gray-text text-xs w-24 h-6" />
+                                  <div className="px-3 py-1 rounded-full bg-gray-bg border border-gray-border text-gray-text text-xs w-24 h-6" />
+                                </div>
+                              </header>
+
+                              <div className="mb-3">
+                                <div className="h-4 bg-gray-border rounded-md w-full mb-2" />
+                                <div className="h-4 bg-gray-border rounded-md w-5/6 mb-2" />
+                                <div className="h-4 bg-gray-border rounded-md w-3/4" />
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                <div className="inline-block w-20 h-6 bg-gray-bg rounded-full border border-gray-border" />
+                                <div className="inline-block w-20 h-6 bg-gray-bg rounded-full border border-gray-border" />
+                                <div className="inline-block w-20 h-6 bg-gray-bg rounded-full border border-gray-border" />
+                              </div>
+                            </article>
+                          </div>
+
+                          <div className="hidden lg:block" />
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+
                 {!expLoading && expError && (
                   <p className="text-center text-gray-light font-lufga">{expError}</p>
                 )}

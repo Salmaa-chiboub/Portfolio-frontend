@@ -122,8 +122,41 @@ export default function ProjectsCarousel() {
         <div className="flex flex-col items-center gap-12">
           <div className="w-full max-w-[1290px] space-y-12">
             {loading ? (
-              <div className="flex justify-center">
-                <div className="w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] bg-gray-bg animate-pulse rounded-[20px]" />
+              <div className="w-full md:w-[720px] lg:w-[860px] xl:w-[980px] space-y-8">
+                {Array.from({ length: 2 }).map((_, si) => (
+                  <div key={si} className="flex flex-col items-center gap-6 w-full">
+                    <div className="block w-full text-left group">
+                      <div className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] rounded-[20px] overflow-hidden bg-gray-bg animate-pulse" />
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-3">
+                      <div className="w-10 h-4 rounded-full bg-gray-border animate-pulse" />
+                      <div className="w-10 h-4 rounded-full bg-gray-border animate-pulse" />
+                      <div className="w-10 h-4 rounded-full bg-gray-border animate-pulse" />
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-3.5">
+                      {Array.from({ length: 4 }).map((__, ci) => (
+                        <div key={ci} className="px-6 py-3 rounded-[24px] bg-gray-bg text-transparent border border-gray-border w-[120px] h-10 animate-pulse" />
+                      ))}
+                    </div>
+
+                    <div className="w-full max-w-[860px] flex flex-col items-center gap-4">
+                      <div className="flex items-end gap-4.5 w-full justify-center">
+                        <div className="h-8 sm:h-10 lg:h-12 w-3/4 bg-gray-border rounded-md animate-pulse" />
+                        <div className="w-[58px] h-[58px] rounded-full bg-gray-border animate-pulse" />
+                      </div>
+                      <div className="w-full text-center">
+                        <div className="h-4 w-5/6 bg-gray-border rounded-md mx-auto animate-pulse mb-2" />
+                        <div className="h-4 w-3/4 bg-gray-border rounded-md mx-auto animate-pulse" />
+                      </div>
+                    </div>
+
+                    <div className="w-full flex justify-center">
+                      <div className="w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-px bg-gray-border" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               visibleProjects.map((p, i) => {
