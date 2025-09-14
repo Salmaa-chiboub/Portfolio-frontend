@@ -46,7 +46,7 @@ const truncate = (s: string, max: number) => {
   if (str.length <= max) return str;
   const cut = str.slice(0, max);
   const lastSpace = cut.lastIndexOf(" ");
-  return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim() + "…";
+  return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim() + "��";
 };
 
 export default function ExperiencesSection() {
@@ -274,7 +274,10 @@ export default function ExperiencesSection() {
 
             <div ref={timelineRef} className="relative max-w-6xl mx-auto lg:px-4 mt-4 lg:mt-0">
               <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-1 bg-orange/30 -translate-x-1/2" />
-              <div className="hidden lg:block absolute left-1/2 top-0 w-1 bg-orange -translate-x-1/2 transition-[height] duration-500" style={{ height: `${timelineProgress}%` }} />
+              <div
+                className="hidden lg:block absolute left-1/2 top-0 w-1 bg-orange -translate-x-1/2 transform-gpu origin-top"
+                style={{ transform: `scaleY(${timelineProgress / 100})`, willChange: 'transform' }}
+              />
 
               <div className="space-y-10">
 

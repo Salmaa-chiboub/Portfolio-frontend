@@ -51,7 +51,7 @@ export default function AdminLogin() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem("theme");
-      const isDark = saved ? saved === "dark" : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      const isDark = saved ? saved === "dark" : false; // default to light
       document.documentElement.classList.toggle("dark", !!isDark);
     } catch {}
   }, []);

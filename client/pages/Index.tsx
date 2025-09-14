@@ -480,10 +480,10 @@ export default function Index() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem("theme");
-      let initial = isDarkMode;
+      let initial = false; // default to light
       if (saved === "dark") initial = true;
       else if (saved === "light") initial = false;
-      else if (window.matchMedia) initial = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      // If no saved preference, default remains light (do not use prefers-color-scheme)
       setIsDarkMode(initial);
       document.documentElement.classList.toggle("dark", initial);
     } catch {
