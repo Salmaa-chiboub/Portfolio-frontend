@@ -1802,9 +1802,31 @@ export default function Index() {
             <p className="text-white font-lufga text-lg lg:text-xl text-center lg:text-left">
               Copyright© {new Date().getFullYear()} Salma. All Rights Reserved.
             </p>
-            <p className="text-white font-lufga text-lg lg:text-xl text-center lg:text-right">
-              User Terms & Conditions | Privacy Policy
-            </p>
+
+            <div className="flex items-center space-x-6">
+              {/* Social icons (repeat hero links if available) */}
+              <div className="hidden sm:flex items-center bg-white/10 backdrop-blur-lg preserve-blur border-2 border-white rounded-full p-2">
+                {hero?.github && (
+                  <a href={hero.github} target="_blank" rel="noreferrer" aria-label="GitHub" className="w-10 h-10 bg-orange rounded-full flex items-center justify-center mx-1 hover:bg-orange/90 transition-colors">
+                    <Github className="w-5 h-5 text-white" />
+                  </a>
+                )}
+                {hero?.linkedin && (
+                  <a href={hero.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="w-10 h-10 bg-white/10 border border-white/30 rounded-full flex items-center justify-center mx-1 hover:bg-white/20 transition-colors">
+                    <Linkedin className="w-5 h-5 text-white" />
+                  </a>
+                )}
+                {hero?.instagram && (
+                  <a href={hero.instagram} target="_blank" rel="noreferrer" aria-label="Instagram" className="w-10 h-10 bg-white/10 border border-white/30 rounded-full flex items-center justify-center mx-1 hover:bg-white/20 transition-colors">
+                    <Instagram className="w-5 h-5 text-white" />
+                  </a>
+                )}
+              </div>
+
+              <p className="text-white font-lufga text-lg lg:text-xl text-center lg:text-right">
+                User Terms & Conditions | Privacy Policy
+              </p>
+            </div>
           </div>
         </div>
           </footer>
