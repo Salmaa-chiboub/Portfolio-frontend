@@ -33,6 +33,30 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 const queryClient = new QueryClient();
 
+// Compute build id consistent with addCacheBuster and update preload for LCP image to match final URL
+try {
+  const BUILD_ID = (typeof window !== 'undefined' && (import.meta as any).hot) ? String(Date.now()) : ((import.meta as any).env?.VITE_BUILD_ID as string) || '1';
+  // find preload for caracter.avif and append cache buster
+  if (typeof document !== 'undefined') {
+    const sel = 'link[rel="preload"][as="image"]';
+    const links = Array.from(document.querySelectorAll(sel));
+    for (const l of links) {
+      const href = (l as HTMLLinkElement).href || (l as HTMLLinkElement).getAttribute('href') || '';
+      if (href && href.indexOf('caracter.avif') !== -1 && !/([?&])v=/.test(href)) {
+        try {
+          const url = new URL(href, window.location.href);
+          url.searchParams.set('v', BUILD_ID);
+          (l as HTMLLinkElement).href = url.toString();
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }
+} catch (e) {
+  // ignore errors
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <Toaster />
