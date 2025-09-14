@@ -44,9 +44,28 @@ const formatMonthYear = (iso: string | null | undefined) => {
 const truncate = (s: string, max: number) => {
   const str = s || "";
   if (str.length <= max) return str;
-  const cut = str.slice(0, max);
+
+  // Decode HTML entities safely in browser
+  const decode = (input: string) => {
+    if (typeof document === "undefined") return input;
+    try {
+      const ta = document.createElement("textarea");
+      ta.innerHTML = input;
+      return ta.value;
+    } catch {
+      return input;
+    }
+  };
+
+  const decoded = decode(str);
+  // Use Array.from to avoid slicing in the middle of surrogate pairs
+  const chars = Array.from(decoded);
+  if (chars.length <= max) return decoded;
+  const cutArr = chars.slice(0, max);
+  const cut = cutArr.join("");
   const lastSpace = cut.lastIndexOf(" ");
-  return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim() + "��";
+  const final = (lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim();
+  return final + "…";
 };
 
 export default function ExperiencesSection() {
