@@ -26,7 +26,6 @@ import {
 
 import Typewriter from "@/components/ui/typewriter";
 
-import { setTimeout, clearTimeout } from "timers";
 
 type SkillReference = {
   id: number;
