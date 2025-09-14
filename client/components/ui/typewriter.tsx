@@ -43,7 +43,7 @@ export default function Typewriter({
           // hide cursor shortly after finishing
           window.setTimeout(() => {
             if (mounted) setShowCursor(false);
-          }, 700);
+          }, 250);
         }
       }, speed);
     };

@@ -228,6 +228,13 @@ html {
     background-color: rgba(255, 255, 255, 0.08) !important;
   }
 
+  /* Reduce heavy visual effects on small screens for performance */
+  @media (max-width: 768px) {
+    .backdrop-blur-lg, .backdrop-blur-md { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+    .shadow-lg, .shadow-sm, .shadow { box-shadow: none !important; }
+    .hero-blob { display: none !important; }
+  }
+
   /* Disable heavy transitions during scroll for most elements, but avoid removing transforms used for positioning */
   /* Note: we intentionally avoid a global "transform: none" because some elements (eg. centered backgrounds) rely on transforms for positioning. */
 

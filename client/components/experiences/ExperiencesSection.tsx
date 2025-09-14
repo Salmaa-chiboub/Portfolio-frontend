@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { getApiUrl } from "@/lib/config";
 import { useDebouncedValue } from "@/hooks/use-debounce";
 import { buildNetlifyImageUrl, netlifyImagesEnabled } from "@/lib/images";
+import ViewportMount from "@/components/ui/ViewportMount";
 
 // Local types matching API
 type ExperienceSkill = {
@@ -284,17 +285,18 @@ export default function ExperiencesSection() {
                 )}
 
                 {!expLoading && !expError && displayedExperiences.map((exp, idx) => (
-                  <TimelineRow
-                    key={exp.id}
-                    exp={exp}
-                    idx={idx}
-                    onLeft={idx % 2 === 0}
-                    lowPerf={lowPerf}
-                    expanded={!!expandedExp[exp.id]}
-                    setExpanded={(v) =>
-                      setExpandedExp((prev) => ({ ...prev, [exp.id]: typeof v === "boolean" ? v : !prev[exp.id] }))
-                    }
-                  />
+                  <ViewportMount key={exp.id} rootMargin={idx < 5 ? '1200px 0px' : '800px 0px'} once={false}>
+                    <TimelineRow
+                      exp={exp}
+                      idx={idx}
+                      onLeft={idx % 2 === 0}
+                      lowPerf={lowPerf}
+                      expanded={!!expandedExp[exp.id]}
+                      setExpanded={(v) =>
+                        setExpandedExp((prev) => ({ ...prev, [exp.id]: typeof v === "boolean" ? v : !prev[exp.id] }))
+                      }
+                    />
+                  </ViewportMount>
                 ))}
 
                 <div ref={loadMoreRef} />

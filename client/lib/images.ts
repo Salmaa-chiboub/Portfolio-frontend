@@ -33,7 +33,8 @@ export const netlifyImagesEnabled = () => {
   const host = window.location.hostname || "";
   const onNetlify = /netlify\.app$/.test(host);
   const explicit = ((import.meta as any)?.env?.VITE_USE_NETLIFY_IMAGES as string) === '1';
-  return onNetlify && explicit;
+  // Allow explicit enabling via env var locally during development or CI
+  return explicit || onNetlify;
 };
 
 export const pingNetlifyImages = async (): Promise<boolean> => {
