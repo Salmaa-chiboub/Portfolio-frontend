@@ -211,11 +211,8 @@ html {
     animation-play-state: paused !important;
   }
 
-  /* Disable heavy transitions during scroll */
-  .is-scrolling * {
-    transition: none !important;
-    transform: none !important;
-  }
+  /* Disable heavy transitions during scroll for most elements, but avoid removing transforms used for positioning */
+  /* Note: we intentionally avoid a global "transform: none" because some elements (eg. centered backgrounds) rely on transforms for positioning. */
 
   .hero-blob {
     position: absolute;

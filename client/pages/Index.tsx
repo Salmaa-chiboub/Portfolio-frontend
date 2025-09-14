@@ -1029,9 +1029,9 @@ export default function Index() {
 
             {/* Right side - Image with background */}
             <div className="flex-1 flex justify-center lg:justify-end relative">
-              <div className="relative -translate-y-6 sm:-translate-y-8">
+              <div className="relative -translate-y-6 sm:-translate-y-8 lg:translate-y-0">
                 {/* Orange semicircle background */}
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md lg:max-w-lg xl:max-w-xl h-64 sm:h-80 lg:h-96 bg-orange-light rounded-t-full"></div>
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md h-64 sm:h-80 bg-orange-light rounded-t-full lg:max-w-lg lg:h-96 pointer-events-none" />
 
                 {/* Main image */}
                 <div className="relative z-10">
