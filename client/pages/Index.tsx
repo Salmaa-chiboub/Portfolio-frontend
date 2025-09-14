@@ -1058,6 +1058,8 @@ export default function Index() {
                             decoding="async"
                             src={addCacheBuster(hero.image)}
                             alt={hero?.headline || "Salma Chiboub - Product Designer"}
+                            width={400}
+                            height={500}
                             className="absolute inset-0 w-full h-full object-cover rounded-none"
                             sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
                             onError={(e) => {
@@ -1088,6 +1090,8 @@ export default function Index() {
                             decoding="async"
                             src={addCacheBuster("/caracter.avif")}
                             alt={hero?.headline || "Salma Chiboub - Product Designer"}
+                            width={400}
+                            height={500}
                             className="absolute inset-0 w-full h-full object-cover rounded-none"
                             sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
                             onError={(e) => {

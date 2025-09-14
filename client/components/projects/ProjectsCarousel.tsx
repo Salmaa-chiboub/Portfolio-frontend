@@ -164,6 +164,8 @@ export default function ProjectsCarousel() {
                           <img
                             src={addCacheBuster(src)}
                             alt={p.title}
+                            width={980}
+                            height={400}
                             className="absolute inset-0 w-full h-full object-cover"
                             loading="lazy"
                             decoding="async"
