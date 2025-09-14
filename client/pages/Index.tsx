@@ -1349,14 +1349,16 @@ export default function Index() {
 
       {/* Experiences Section */}
   <div ref={experiencesRef}>
-    <div className="lg:hidden container mx-auto max-w-7xl px-4 mt-12">
-      <div className="text-center mb-8">
-        <h2 className="text-4xl sm:text-5xl md:text-6xl font-lufga font-semibold leading-tight tracking-tight">
-          <span className="text-gray-text">Professional </span>
-          <span className="text-orange">Experiences</span>
-        </h2>
+    {hasExperiences && (
+      <div className="lg:hidden container mx-auto max-w-7xl px-4 mt-12">
+        <div className="text-center mb-8">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-lufga font-semibold leading-tight tracking-tight">
+            <span className="text-gray-text">Professional </span>
+            <span className="text-orange">Experiences</span>
+          </h2>
+        </div>
       </div>
-    </div>
+    )}
     <Suspense fallback={null}>
       <ExperiencesSectionLazy />
     </Suspense>

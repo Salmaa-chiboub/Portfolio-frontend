@@ -126,7 +126,7 @@ export default function ProjectsCarousel() {
                 {Array.from({ length: 2 }).map((_, si) => (
                   <div key={si} className="flex flex-col items-center gap-6 w-full">
                     <div className="block w-full text-left group">
-                      <div className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] rounded-[20px] overflow-hidden bg-gray-bg animate-pulse" />
+                      <div className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[240px] sm:h-[320px] md:h-[400px] lg:h-[420px] rounded-[20px] overflow-hidden bg-gray-bg animate-pulse" />
                     </div>
 
                     <div className="flex items-center gap-3 mt-3">
@@ -174,7 +174,7 @@ export default function ProjectsCarousel() {
                       aria-label={`Open ${p.title}`}
                     >
                       <div
-                        className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[400px] sm:h-[420px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300"
+                        className="relative mx-auto w-full md:w-[720px] lg:w-[860px] xl:w-[980px] h-[240px] sm:h-[320px] md:h-[400px] lg:h-[420px] rounded-[20px] overflow-hidden bg-white shadow-[0_4px_55px_0_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_70px_0_rgba(0,0,0,0.1)] transition-shadow duration-300"
                         onTouchStart={(e) => { touchByProjectRef.current[p.id] = { startX: e.touches[0]?.clientX ?? null, time: Date.now() }; }}
                         onTouchEnd={(e) => {
                           const info = touchByProjectRef.current[p.id];

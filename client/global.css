@@ -247,6 +247,22 @@ html {
     .hero-blob { display: none !important; }
   }
 
+  /* Re-enable a lightweight stable blur for preserved elements on mobile
+     - Some devices disable heavy backdrop-filters for performance; provide
+       a modest fallback and ensure the social bubble remains visible. */
+  @media (max-width: 768px) {
+    .preserve-blur,
+    .social-float {
+      -webkit-backdrop-filter: blur(6px) !important;
+      backdrop-filter: blur(6px) !important;
+      background-color: rgba(255,255,255,0.08) !important;
+      border-color: rgba(255,255,255,0.12) !important;
+      will-change: transform, opacity !important;
+      transform: translateZ(0) !important;
+      -webkit-transform: translateZ(0) !important;
+    }
+  }
+
   /* Disable heavy transitions during scroll for most elements, but avoid removing transforms used for positioning */
   /* Note: we intentionally avoid a global "transform: none" because some elements (eg. centered backgrounds) rely on transforms for positioning. */
 
