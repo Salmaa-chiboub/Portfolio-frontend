@@ -228,6 +228,18 @@ html {
     background-color: rgba(255, 255, 255, 0.08) !important;
   }
 
+  /* Promote social icons bubble to its own layer and provide a stable blur fallback on mobile */
+  .social-float {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.06);
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    contain: paint;
+  }
+
   /* Reduce heavy visual effects on small screens for performance */
   @media (max-width: 768px) {
     .backdrop-blur-lg, .backdrop-blur-md { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
