@@ -1113,7 +1113,7 @@ export default function Index() {
                   if (!hasAny) return null;
                   return (
                     <div className="absolute bottom-8 sm:bottom-12 lg:bottom-16 right-4 sm:right-8 lg:right-12 z-20">
-                      <div className="flex items-center bg-white/10 backdrop-blur-lg border-2 border-white rounded-full p-1 lg:p-2">
+                      <div className="flex items-center bg-white/10 backdrop-blur-lg preserve-blur border-2 border-white rounded-full p-1 lg:p-2">
                         {github && (
                           <a
                             href={github}

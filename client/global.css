@@ -211,6 +211,13 @@ html {
     animation-play-state: paused !important;
   }
 
+  /* Keep blur for elements that should remain frosted even during scroll */
+  .is-scrolling .preserve-blur {
+    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(12px) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
   /* Disable heavy transitions during scroll for most elements, but avoid removing transforms used for positioning */
   /* Note: we intentionally avoid a global "transform: none" because some elements (eg. centered backgrounds) rely on transforms for positioning. */
 
