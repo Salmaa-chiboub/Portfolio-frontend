@@ -437,13 +437,14 @@ export default function Index() {
   useEffect(() => {
     const compute = () => {
       const w = window.innerWidth;
-      let cols = 2; // xs
-      if (w >= 1280) cols = 6; // xl
-      else if (w >= 1024) cols = 5; // lg
-      else if (w >= 768) cols = 4; // md
-      else if (w >= 640) cols = 3; // sm
-      let rows = w < 768 ? 3 : 2; // default
-      if (w >= 1024) rows = 3; // increase rows on desktop
+      let cols = 2; // base mobile
+      if (w >= 1280) cols = 6; // desktop (xl)
+      else if (w >= 768) cols = 3; // tablet (md/lg)
+      else cols = 2; // mobile
+      // Rows per page: mobile 4 rows, tablet 3 rows, desktop 3 rows
+      let rows = 3; // mobile default
+      if (w >= 768) rows = 3; // tablet and up
+      if (w >= 1280) rows = 3; // desktop
 
       // Compute a consistent minimum height for the grid based on breakpoint styles
       let itemH = 96; // base h-24 = 6rem
@@ -461,7 +462,7 @@ export default function Index() {
       setSkillsGridMinH(minH);
 
       const computed = cols * rows;
-      setPerPage(w >= 1024 ? Math.min(computed, 15) : computed);
+      setPerPage(computed);
     };
     compute();
     window.addEventListener("resize", compute);
@@ -1301,7 +1302,7 @@ export default function Index() {
                 <div className="items-center">
                   <div style={{ minHeight: skillsGridMinH }} ref={skillsWheelRef} className="relative mb-6">
                     <div
-                        className="absolute inset-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6 xl:gap-8"
+                        className="absolute inset-0 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 lg:gap-6 xl:gap-8"
                         style={{ willChange: "transform" }}
                         onTouchStart={handleSkillsTouchStart}
                         onTouchMove={handleSkillsTouchMove}
@@ -1326,19 +1327,21 @@ export default function Index() {
                           ))}
                       </div>
                   </div>
-                  <div className="flex justify-center space-x-3">
-                    {Array.from({ length: Math.max(totalSkillPages, 1) }).map((_, i) => (
-                      <button
-                        key={i}
-                        aria-label={`Go to skills page ${i + 1}`}
-                        onClick={() => {
-                          pageDirRef.current = i > skillsPage ? 1 : -1;
-                          setSkillsPage(i);
-                        }}
-                        className={`w-3 h-3 rounded-full transition-colors ${i === skillsPage ? "bg-orange" : "bg-white"}`}
-                      />
-                    ))}
-                  </div>
+                  {totalSkillPages > 1 && (
+                    <div className="flex justify-center space-x-3">
+                      {Array.from({ length: Math.max(totalSkillPages, 1) }).map((_, i) => (
+                        <button
+                          key={i}
+                          aria-label={`Go to skills page ${i + 1}`}
+                          onClick={() => {
+                            pageDirRef.current = i > skillsPage ? 1 : -1;
+                            setSkillsPage(i);
+                          }}
+                          className={`w-3 h-3 rounded-full transition-colors ${i === skillsPage ? "bg-orange" : "bg-white"}`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
