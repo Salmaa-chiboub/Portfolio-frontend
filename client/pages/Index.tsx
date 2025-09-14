@@ -1064,7 +1064,7 @@ export default function Index() {
                         <picture>
                           <source
                             type="image/avif"
-                            srcSet={useNImages ? makeSrcSet("/caracter.avif", [280, 400, 512], "avif") : addCacheBuster("/caracter.avif")}
+                            srcSet={useNImages ? makeSrcSet("/caracter.avif", [280, 400, 512], "avif") : undefined}
                             sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
                           />
                           <source
@@ -1076,7 +1076,7 @@ export default function Index() {
                             loading="eager"
                             fetchPriority="high"
                             decoding="async"
-                            src={useNImages ? buildNetlifyImageUrl("/caracter.avif", { w: 512, format: "avif" }) : addCacheBuster("/placeholder.svg")}
+                            src={addCacheBuster("/caracter.avif")}
                             alt={hero?.headline || "Salma Chiboub - Product Designer"}
                             className="absolute inset-0 w-full h-full object-cover rounded-none"
                             sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"

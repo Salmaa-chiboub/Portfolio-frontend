@@ -31,9 +31,9 @@ export const makeSrcSet = (url: string, widths: number[], format: "webp" | "avif
 export const netlifyImagesEnabled = () => {
   if (typeof window === "undefined") return false;
   const host = window.location.hostname || "";
-  const isLocal = /^(localhost|127\.|0\.0\.0\.0)/.test(host);
-  const prod = (import.meta as any)?.env?.PROD === true;
-  return !isLocal || prod;
+  const onNetlify = /netlify\.app$/.test(host);
+  const explicit = ((import.meta as any)?.env?.VITE_USE_NETLIFY_IMAGES as string) === '1';
+  return onNetlify && explicit;
 };
 
 export const pingNetlifyImages = async (): Promise<boolean> => {

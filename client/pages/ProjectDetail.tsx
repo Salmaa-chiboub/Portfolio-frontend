@@ -5,7 +5,7 @@ import { Github, ExternalLink } from "lucide-react";
 import { getApiUrl } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
-import { makeSrcSet } from "@/lib/images";
+import { makeSrcSet, netlifyImagesEnabled } from "@/lib/images";
 
 type ProjectMedia = {
   id: number;
@@ -253,8 +253,8 @@ export default function ProjectDetail() {
               <div className="relative mx-auto w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%] touch-pan-y" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} style={{ touchAction: 'pan-y' }}>
                 <div className="rounded-3xl overflow-hidden">
                   <picture>
-                    <source type="image/avif" srcSet={makeSrcSet(addCacheBuster(mainImage), [640, 768, 992, 1200, 1600], 'avif')} sizes="(max-width: 1024px) 100vw, 70vw" />
-                    <source type="image/webp" srcSet={makeSrcSet(addCacheBuster(mainImage), [640, 768, 992, 1200, 1600], 'webp')} sizes="(max-width: 1024px) 100vw, 70vw" />
+                    <source type="image/avif" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(mainImage), [640, 768, 992, 1200, 1600], 'avif') : undefined} sizes="(max-width: 1024px) 100vw, 70vw" />
+                    <source type="image/webp" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(mainImage), [640, 768, 992, 1200, 1600], 'webp') : undefined} sizes="(max-width: 1024px) 100vw, 70vw" />
                     <motion.img
                       key={mainImage}
                       loading="lazy"
@@ -376,8 +376,8 @@ export default function ProjectDetail() {
                     <div key={p.id} className="rounded-2xl border border-gray-border bg-white p-3">
                       <div className="relative w-full h-40 rounded-xl overflow-hidden bg-gray-bg border border-gray-border">
                         <picture>
-                          <source type="image/avif" srcSet={makeSrcSet(addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg"), [400, 600, 800, 992], 'avif')} sizes="(max-width: 1024px) 100vw, 25vw" />
-                          <source type="image/webp" srcSet={makeSrcSet(addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg"), [400, 600, 800, 992], 'webp')} sizes="(max-width: 1024px) 100vw, 25vw" />
+                          <source type="image/avif" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg"), [400, 600, 800, 992], 'avif') : undefined} sizes="(max-width: 1024px) 100vw, 25vw" />
+                          <source type="image/webp" srcSet={netlifyImagesEnabled() ? makeSrcSet(addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg"), [400, 600, 800, 992], 'webp') : undefined} sizes="(max-width: 1024px) 100vw, 25vw" />
                           <img
                             loading="lazy"
                             decoding="async"
