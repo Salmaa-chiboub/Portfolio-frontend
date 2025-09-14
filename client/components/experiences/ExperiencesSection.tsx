@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getApiUrl } from "@/lib/config";
 import { useDebouncedValue } from "@/hooks/use-debounce";
+import { buildNetlifyImageUrl, netlifyImagesEnabled } from "@/lib/images";
 
 // Local types matching API
 type ExperienceSkill = {
@@ -435,7 +436,7 @@ function TimelineRowBase({
                     {skills.map((s) => (
                       <li key={s.id} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-bg border border-gray-border text-gray-text text-sm">
                         {s.icon ? (
-                          <img loading="lazy" decoding="async" src={s.icon} alt={s.name} className="w-4 h-4 object-contain transition-opacity duration-700" />
+                          <img loading="lazy" decoding="async" src={netlifyImagesEnabled() ? buildNetlifyImageUrl(s.icon, { w: 32, format: 'webp' }) : s.icon} alt={s.name} width={16} height={16} className="w-4 h-4 object-contain transition-opacity duration-700" />
                         ) : null}
                         <span>{s.name}</span>
                       </li>
@@ -519,7 +520,7 @@ function TimelineRowBase({
                     {skills.map((s) => (
                       <li key={s.id} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-bg border border-gray-border text-gray-text text-sm">
                         {s.icon ? (
-                          <img loading="lazy" decoding="async" src={s.icon} alt={s.name} className="w-4 h-4 object-contain transition-opacity duration-700" />
+                          <img loading="lazy" decoding="async" src={netlifyImagesEnabled() ? buildNetlifyImageUrl(s.icon, { w: 32, format: 'webp' }) : s.icon} alt={s.name} width={16} height={16} className="w-4 h-4 object-contain transition-opacity duration-700" />
                         ) : null}
                         <span>{s.name}</span>
                       </li>

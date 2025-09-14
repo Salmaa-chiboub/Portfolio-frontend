@@ -5,6 +5,7 @@ import { Github, ExternalLink } from "lucide-react";
 import { getApiUrl } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
+import { makeSrcSet } from "@/lib/images";
 
 type ProjectMedia = {
   id: number;
@@ -251,24 +252,28 @@ export default function ProjectDetail() {
               {/* Main image container - 70% width, centered */}
               <div className="relative mx-auto w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%] touch-pan-y" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} style={{ touchAction: 'pan-y' }}>
                 <div className="rounded-3xl overflow-hidden">
-                  <motion.img
-                    key={mainImage}
-                    loading="lazy"
-                    decoding="async"
-                    src={addCacheBuster(mainImage)}
-                    alt={project.title}
-                    className="w-full h-[16rem] sm:h-[18rem] md:h-[22rem] lg:h-[30rem] object-cover cursor-zoom-in"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    onError={(e) => {
-                      const img = e.currentTarget as HTMLImageElement;
-                      if (img.src.includes("project-placeholder.svg")) return;
-                      img.onerror = null;
-                      img.src = "/project-placeholder.svg";
-                    }}
-                    onDoubleClick={() => openViewer(activeIndex)}
-                  />
+                  <picture>
+                    <source type="image/avif" srcSet={makeSrcSet(addCacheBuster(mainImage), [640, 768, 992, 1200, 1600], 'avif')} sizes="(max-width: 1024px) 100vw, 70vw" />
+                    <source type="image/webp" srcSet={makeSrcSet(addCacheBuster(mainImage), [640, 768, 992, 1200, 1600], 'webp')} sizes="(max-width: 1024px) 100vw, 70vw" />
+                    <motion.img
+                      key={mainImage}
+                      loading="lazy"
+                      decoding="async"
+                      src={addCacheBuster(mainImage)}
+                      alt={project.title}
+                      className="w-full h-[16rem] sm:h-[18rem] md:h-[22rem] lg:h-[30rem] object-cover cursor-zoom-in"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      onError={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        if (img.src.includes("project-placeholder.svg")) return;
+                        img.onerror = null;
+                        img.src = "/project-placeholder.svg";
+                      }}
+                      onDoubleClick={() => openViewer(activeIndex)}
+                    />
+                  </picture>
                 </div>
 
               </div>
@@ -370,19 +375,23 @@ export default function ProjectDetail() {
                   {suggestions.map((p: any) => (
                     <div key={p.id} className="rounded-2xl border border-gray-border bg-white p-3">
                       <div className="relative w-full h-40 rounded-xl overflow-hidden bg-gray-bg border border-gray-border">
-                        <img
-                          loading="lazy"
-                          decoding="async"
-                          src={addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg")}
-                          alt={p?.title || "Project"}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const img = e.currentTarget as HTMLImageElement;
-                            if (img.src.includes("project-placeholder.svg")) return;
-                            img.onerror = null;
-                            img.src = "/project-placeholder.svg";
-                          }}
-                        />
+                        <picture>
+                          <source type="image/avif" srcSet={makeSrcSet(addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg"), [400, 600, 800, 992], 'avif')} sizes="(max-width: 1024px) 100vw, 25vw" />
+                          <source type="image/webp" srcSet={makeSrcSet(addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg"), [400, 600, 800, 992], 'webp')} sizes="(max-width: 1024px) 100vw, 25vw" />
+                          <img
+                            loading="lazy"
+                            decoding="async"
+                            src={addCacheBuster(p?.media?.[0]?.image || "/project-placeholder.svg")}
+                            alt={p?.title || "Project"}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const img = e.currentTarget as HTMLImageElement;
+                              if (img.src.includes("project-placeholder.svg")) return;
+                              img.onerror = null;
+                              img.src = "/project-placeholder.svg";
+                            }}
+                          />
+                        </picture>
                       </div>
                       <h3 className="mt-3 text-lg font-lufga font-bold text-gray-text truncate" title={p?.title}>{p?.title || "Project"}</h3>
                       <Link

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getApiUrl } from "@/lib/config";
-import { makeSrcSet, netlifyImagesEnabled, pingNetlifyImages } from "@/lib/images";
+import { makeSrcSet, netlifyImagesEnabled, pingNetlifyImages, buildNetlifyImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import { useHero, useAbout, useBlogs, useProjects, useExperiences } from "@/hooks/use-api";
 import { useDebouncedValue } from "@/hooks/use-debounce";
@@ -1062,12 +1062,21 @@ export default function Index() {
                         </picture>
                       ) : (
                         <picture>
-                          <source type="image/avif" srcSet={addCacheBuster("/caracter.avif")} />
+                          <source
+                            type="image/avif"
+                            srcSet={useNImages ? makeSrcSet("/caracter.avif", [280, 400, 512], "avif") : addCacheBuster("/caracter.avif")}
+                            sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                          />
+                          <source
+                            type="image/webp"
+                            srcSet={useNImages ? makeSrcSet("/caracter.avif", [280, 400, 512], "webp") : undefined}
+                            sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
+                          />
                           <motion.img
                             loading="eager"
                             fetchPriority="high"
                             decoding="async"
-                            src={addCacheBuster("/placeholder.svg")}
+                            src={useNImages ? buildNetlifyImageUrl("/caracter.avif", { w: 512, format: "avif" }) : addCacheBuster("/placeholder.svg")}
                             alt={hero?.headline || "Salma Chiboub - Product Designer"}
                             className="absolute inset-0 w-full h-full object-cover rounded-none"
                             sizes="(max-width: 640px) 280px, (max-width: 1024px) 400px, 512px"
