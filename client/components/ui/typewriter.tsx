@@ -16,13 +16,15 @@ export default function Typewriter({
   const [visible, setVisible] = useState(0);
   const fullText = parts.map((p) => p.text).join("");
   const total = fullText.length;
+  const [showCursor, setShowCursor] = useState(cursor);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) {
-      // reveal all immediately
+      // reveal all immediately and hide cursor for reduced motion
       setVisible(total);
+      setShowCursor(false);
       return;
     }
 
@@ -38,6 +40,10 @@ export default function Typewriter({
         setVisible(i);
         if (i >= total) {
           if (interval) window.clearInterval(interval);
+          // hide cursor shortly after finishing
+          window.setTimeout(() => {
+            if (mounted) setShowCursor(false);
+          }, 700);
         }
       }, speed);
     };
@@ -66,7 +72,7 @@ export default function Typewriter({
           </span>
         );
       })}
-      {cursor && (
+      {showCursor && (
         <span
           aria-hidden
           className="ml-1 align-middle inline-block w-[8px] h-[1.1em] bg-current animate-blink"
