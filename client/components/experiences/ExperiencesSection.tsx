@@ -99,25 +99,52 @@ export default function ExperiencesSection() {
     return list.slice().sort((a, b) => toTime(a) - toTime(b));
   }, [experiences, expFilter, debouncedExpQuery]);
 
-  // Timeline progress
+  // Timeline progress: use boundingClientRect + requestAnimationFrame on desktop for accurate 0-100% fill
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const [timelineProgress, setTimelineProgress] = useState(0);
   useEffect(() => {
     const el = timelineRef.current;
     if (!el) return;
-    let last = -1;
-    const thresholds = Array.from({ length: 9 }, (_, i) => i / 8);
-    const io = new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      const p = Math.round((entry.intersectionRatio || 0) * 100);
-      if (p !== last) {
-        last = p;
+    let rafId: number | null = null;
+    const compute = () => {
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+      const total = vh + rect.height;
+      const visible = vh - rect.top;
+      const ratio = total > 0 ? Math.max(0, Math.min(1, visible / total)) : 0;
+      const p = Math.round(ratio * 100);
+      setTimelineProgress(p);
+    };
+    const onScroll = () => {
+      if (rafId != null) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        compute();
+      });
+    };
+
+    // Only use this precise calculation on non-mobile (desktop) to match UX requirement
+    if (!isMobile) {
+      compute();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll, { passive: true });
+    } else {
+      // Keep a simple fallback on mobile: observe visibility via IntersectionObserver to avoid heavy work
+      const io = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        const p = Math.round((entry.intersectionRatio || 0) * 100);
         setTimelineProgress(p);
-      }
-    }, { threshold: thresholds });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+      }, { threshold: Array.from({ length: 101 }, (_, i) => i / 100) });
+      io.observe(el);
+      return () => io.disconnect();
+    }
+
+    return () => {
+      if (rafId != null) window.cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [isMobile]);
 
   // Initial fetch with AbortController
   useEffect(() => {
