@@ -24,6 +24,8 @@ import {
   Instagram,
 } from "lucide-react";
 
+import Typewriter from "@/components/ui/typewriter";
+
 type SkillReference = {
   id: number;
   name: string;
@@ -987,8 +989,7 @@ export default function Index() {
 
               {/* Main heading - Responsive text sizes */}
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-urbanist font-bold leading-none tracking-tight">
-                <span className="text-dark">{heroFirst}</span>
-                <span className="text-orange">{heroSecond}</span>
+                <Typewriter parts={[{ text: heroFirst, className: 'text-dark' }, { text: heroSecond, className: 'text-orange' }]} speed={60} startDelay={300} />
               </h1>
 
               {/* Headline */}

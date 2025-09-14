@@ -211,6 +211,16 @@ html {
     animation-play-state: paused !important;
   }
 
+  /* Typewriter cursor blink */
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  .animate-blink {
+    animation: blink 1s step-end infinite;
+  }
+
   /* Keep blur for elements that should remain frosted even during scroll */
   .is-scrolling .preserve-blur {
     -webkit-backdrop-filter: blur(12px) !important;
