@@ -34,12 +34,8 @@ export const makeSrcSet = (url: string, widths: number[], format: "webp" | "avif
 };
 
 export const netlifyImagesEnabled = () => {
-  if (typeof window === "undefined") return false;
-  const host = window.location.hostname || "";
-  const onNetlify = /netlify\.app$/.test(host);
-  const explicit = ((import.meta as any)?.env?.VITE_USE_NETLIFY_IMAGES as string) === '1';
-  // Allow explicit enabling via env var locally during development or CI
-  return explicit || onNetlify;
+  // Force disabled: do not route images through Netlify proxy. Use original image URLs.
+  return false;
 };
 
 export const pingNetlifyImages = async (): Promise<boolean> => {
