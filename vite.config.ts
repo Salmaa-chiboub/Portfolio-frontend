@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     expressPlugin(),
-    ...(mode === 'production' ? [
+    ...(mode === 'production' && process.env.VITE_ENABLE_CRITICAL_CSS === '1' ? [
       beasties({ options: { preload: 'swap' } })
     ] : [])
   ],
