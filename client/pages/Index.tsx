@@ -469,6 +469,23 @@ export default function Index() {
     return () => window.removeEventListener("resize", compute);
   }, []);
 
+  // Defer marquee animation until browser idle to reduce initial CPU work
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      document.documentElement.classList.add('marquee-paused');
+      const run = () => {
+        document.documentElement.classList.remove('marquee-paused');
+      };
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(run, { timeout: 700 });
+      } else {
+        const t = setTimeout(run, 700);
+        return () => clearTimeout(t);
+      }
+    } catch {}
+  }, []);
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };

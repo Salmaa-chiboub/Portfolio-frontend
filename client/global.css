@@ -336,6 +336,12 @@ html {
   will-change: transform;
   animation: marqueeSlide 20s linear infinite;
 }
+
+/* Pause marquee by default to avoid CPU work during initial load; removed after idle */
+.marquee-paused .marquee-slide {
+  animation-play-state: paused !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee-slide { animation: none; }
 }
