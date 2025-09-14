@@ -220,6 +220,8 @@ export default function ExperiencesSection() {
 
   const showExperiences = expLoading || ((expTotalCount ?? experiences.length) > 0);
 
+  if (!showExperiences) return null;
+
   return (
     <>
       <section id="resume" className="relative z-20 py-12 lg:py-16 bg-background">
