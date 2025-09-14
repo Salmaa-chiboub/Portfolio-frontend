@@ -4,6 +4,11 @@ export {};
 
 const toAbsoluteUrl = (u: string) => {
   try {
+    // handle protocol relative URLs (//res.cloudinary.com/...)
+    if (u.startsWith('//')) return 'https:' + u;
+    // if already absolute http/https return as-is
+    if (/^https?:\/\//i.test(u)) return u;
+    // otherwise try to resolve relative to origin
     return new URL(u, window.location.origin).toString();
   } catch {
     return u;
