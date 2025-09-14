@@ -8,38 +8,8 @@ import { useHero, useAbout, useBlogs, useProjects, useExperiences } from "@/hook
 import { useDebouncedValue } from "@/hooks/use-debounce";
 import { useQuery } from "@tanstack/react-query";
 
-// LazyOnView: dynamically import a component only when it enters the viewport
-function LazyOnView({ importFunc, rootMargin = '200px', placeholder = null }: { importFunc: () => Promise<any>; rootMargin?: string; placeholder?: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [LoadedComp, setLoadedComp] = useState<React.ComponentType | null>(null);
-  useEffect(() => {
-    if (!ref.current) return;
-    if (LoadedComp) return;
-    let cancelled = false;
-    const obs = new IntersectionObserver((entries) => {
-      const e = entries[0];
-      if (e && e.isIntersecting) {
-        // import the component
-        const L = lazy(importFunc as any);
-        if (!cancelled) setLoadedComp(() => L as any);
-        obs.disconnect();
-      }
-    }, { root: null, rootMargin });
-    obs.observe(ref.current);
-    return () => { cancelled = true; obs.disconnect(); };
-  }, [LoadedComp, importFunc, rootMargin]);
-
-  if (LoadedComp) {
-    const C = LoadedComp as any;
-    return (
-      <Suspense fallback={placeholder}>
-        <C />
-      </Suspense>
-    );
-  }
-
-  return <div ref={ref}>{placeholder}</div>;
-}
+const ExperiencesSectionLazy = lazy(() => import("@/components/experiences/ExperiencesSection"));
+const ProjectsCarouselLazy = lazy(() => import("@/components/projects/ProjectsCarousel"));
 import {
   Star,
   Quote,
@@ -1411,7 +1381,9 @@ export default function Index() {
         </div>
       </div>
     )}
-    <LazyOnView importFunc={() => import("@/components/experiences/ExperiencesSection")} rootMargin="1200px" placeholder={<div style={{ minHeight: 200 }} />} />
+    <Suspense fallback={null}>
+      <ExperiencesSectionLazy />
+    </Suspense>
   </div>
 
 
@@ -1419,7 +1391,9 @@ export default function Index() {
   <div ref={projectsRef}>
     {showProjects ? (
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }}>
-        <LazyOnView importFunc={() => import("@/components/projects/ProjectsCarousel")} rootMargin="600px" placeholder={<div style={{ minHeight: 220 }} />} />
+        <Suspense fallback={<div style={{ minHeight: 220 }} />}>
+          <ProjectsCarouselLazy />
+        </Suspense>
       </motion.div>
     ) : (
       <div style={{ minHeight: 0 }} />
