@@ -124,25 +124,16 @@ export default function ExperiencesSection() {
       });
     };
 
-    // Use precise calculation on desktop; on mobile use IntersectionObserver but compute visible fraction
+    // Only use this precise calculation on non-mobile (desktop) to match UX requirement
     if (!isMobile) {
       compute();
       window.addEventListener("scroll", onScroll, { passive: true });
       window.addEventListener("resize", onScroll, { passive: true });
     } else {
-      // IntersectionObserver on mobile but compute visible area from bounding rect for more accurate progress
+      // Keep a simple fallback on mobile: observe visibility via IntersectionObserver to avoid heavy work
       const io = new IntersectionObserver((entries) => {
         const entry = entries[0];
-        if (!entry) return;
-        const rect = entry.boundingClientRect;
-        const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-        const total = vh + rect.height;
-        // visible portion = clamp(min(rect.bottom, vh) - max(rect.top, 0), 0, rect.height)
-        const visibleTop = Math.max(rect.top, 0);
-        const visibleBottom = Math.min(rect.bottom, vh);
-        const visible = Math.max(0, visibleBottom - visibleTop);
-        const ratio = total > 0 ? Math.max(0, Math.min(1, visible / total)) : 0;
-        const p = Math.round(ratio * 100);
+        const p = Math.round((entry.intersectionRatio || 0) * 100);
         setTimelineProgress(p);
       }, { threshold: Array.from({ length: 101 }, (_, i) => i / 100) });
       io.observe(el);
