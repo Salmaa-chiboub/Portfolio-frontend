@@ -165,6 +165,9 @@ export default function ProjectsCarousel() {
                             src={addCacheBuster(src)}
                             alt={p.title}
                             className="absolute inset-0 w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                            sizes="(max-width: 1280px) 100vw, 980px"
                             onError={(e) => {
                               const img = e.currentTarget as HTMLImageElement;
                               if (img.src.includes("project-placeholder.svg")) return;

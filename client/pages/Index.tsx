@@ -1054,10 +1054,7 @@ export default function Index() {
                                 img.src = "/placeholder.svg";
                               }
                             }}
-                            initial={{ opacity: 1, scale: 1 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: false, amount: 0.4 }}
-                            transition={{ duration: 0.9, ease: "easeOut" }}
+                            {...(lowPerf ? {} : { initial: { opacity: 1, scale: 1 }, whileInView: { opacity: 1, scale: 1 }, viewport: { once: false, amount: 0.4 }, transition: { duration: 0.9, ease: "easeOut" } })}
                           />
                         </picture>
                       ) : (
@@ -1087,10 +1084,7 @@ export default function Index() {
                                 img.src = "/placeholder.svg";
                               }
                             }}
-                            initial={{ opacity: 1, scale: 1 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: false, amount: 0.4 }}
-                            transition={{ duration: 0.9, ease: "easeOut" }}
+                            {...(lowPerf ? {} : { initial: { opacity: 1, scale: 1 }, whileInView: { opacity: 1, scale: 1 }, viewport: { once: false, amount: 0.4 }, transition: { duration: 0.9, ease: "easeOut" } })}
                           />
                         </picture>
                       )}
