@@ -1008,7 +1008,7 @@ export default function Index() {
               </div>
 
               {/* Main heading - Responsive text sizes */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-urbanist font-bold leading-none tracking-tight">
+              <h1 className="hero-heading-reserve text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-urbanist font-bold leading-none tracking-tight">
                 <Typewriter parts={[{ text: heroFirst, className: 'text-dark' }, { text: heroSecond, className: 'text-orange' }]} speed={60} startDelay={300} />
               </h1>
 
@@ -1023,7 +1023,7 @@ export default function Index() {
 
               {/* Subheadline */}
               {apiReady === true && hero?.subheadline ? (
-                <p className="text-muted-foreground font-lufga text-lg lg:text-xl leading-relaxed max-w-lg mx-auto lg:mx-0">
+                <p className="text-muted-foreground font-lufga text-lg lg:text-xl leading-relaxed max-w-lg mx-auto lg:mx-0" style={{ minHeight: '3.5rem' }}>
                   {hero.subheadline}
                 </p>
               ) : apiReady === null ? (

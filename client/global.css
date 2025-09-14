@@ -221,6 +221,20 @@ html {
     animation: blink 1s step-end infinite;
   }
 
+  /* Ensure hero heading area has reserved height to avoid layout shift during font/image load */
+  .hero-heading-reserve {
+    min-height: 3.25rem; /* default small */
+  }
+  @media (min-width: 640px) {
+    .hero-heading-reserve { min-height: 3.75rem; }
+  }
+  @media (min-width: 768px) {
+    .hero-heading-reserve { min-height: 4.25rem; }
+  }
+  @media (min-width: 1024px) {
+    .hero-heading-reserve { min-height: 5.5rem; }
+  }
+
   /* Keep blur for elements that should remain frosted even during scroll */
   .is-scrolling .preserve-blur {
     -webkit-backdrop-filter: blur(12px) !important;

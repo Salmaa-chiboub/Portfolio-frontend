@@ -60,7 +60,11 @@ export default function Typewriter({
   // render parts taking into account visible count
   let remaining = visible;
   return (
-    <span className="typewriter inline-block">
+    <span className="typewriter inline-block" style={{ position: 'relative', display: 'inline-block' }}>
+      {/* Reserve full width to avoid layout shift while typing */}
+      <span aria-hidden style={{ visibility: 'hidden', pointerEvents: 'none', userSelect: 'none', whiteSpace: 'pre' }}>
+        {fullText}
+      </span>
       {parts.map((p, idx) => {
         const len = p.text.length;
         const take = Math.max(0, Math.min(len, remaining));
